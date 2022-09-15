@@ -1,74 +1,51 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Exception.NotFoundException;
 import ru.practicum.shareit.Exception.ValidationException;
+import ru.practicum.shareit.markers.Create;
+import ru.practicum.shareit.markers.Update;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/users")
 public class UserController {
-    private Long currId = 0L;
-    private final Map<Long, User> users = new HashMap<>();
-    private Set<String> emails = new HashSet<>();
+    private final UserService userService;
 
     @GetMapping("")
     public List<User> getAll() {
-        return new ArrayList<>(users.values());
+        return userService.getAll();
     }
 
     @GetMapping("{id}")
     public User getById(@PathVariable Long id) throws NotFoundException {
-        if (users.containsKey(id)) {
-            return users.get(id);
-        } else {
-            throw new NotFoundException("Пользователь с id=" + id + " несуществует");
-        }
+        return userService.getById(id);
     }
 
     @PostMapping()
-    public User create(@RequestBody User user) throws ValidationException {
-        UserValidator.validateEmail(user.getEmail(), emails);
-        user.setId(++currId);
-        users.put(currId, user);
-        emails.add(user.getEmail());
-        log.info("Пользователь с id={} создан", user.getId());
-        return user;
+    public User create(@Validated(Create.class) @RequestBody UserDto userDto) throws ValidationException {
+        User user = UserMapper.toUser(userDto);
+        return userService.add(user);
     }
 
     @PatchMapping("{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) throws ValidationException {
-        user.setId(id);
-        if (users.containsKey(id)) {
-            User prevUser = users.get(id);
-            if (user.getName() != null) {
-                prevUser.setName(user.getName());
-            }
-            if (user.getEmail() != null) {
-                UserValidator.validateEmail(user.getEmail(), emails);
-                emails.remove(prevUser.getEmail());
-                emails.add(user.getEmail());
-                prevUser.setEmail(user.getEmail());
-            }
-            log.info("Пользователь с id={} обновлен", user.getId());
-        } else {
-            throw new NotFoundException("Пользователь с id=" + user.getId() + " несуществует");
-        }
-        return users.get(id);
+    public User update(@PathVariable Long id,
+                       @Validated(Update.class) @RequestBody UserDto userDto) throws ValidationException {
+        User user = UserMapper.toUser(userDto);
+        return userService.update(id, user);
     }
 
     @DeleteMapping("{id}")
     public void delete(@PathVariable Long id) {
-        if (users.containsKey(id)) {
-            emails.remove(users.get(id).getEmail());
-            users.remove(id);
-            log.info("Пользователь с id={} удален", id);
-        } else {
-            throw new NotFoundException("Пользователь с id=" + id + " несуществует");
-        }
+        userService.delete(id);
     }
 
 }
