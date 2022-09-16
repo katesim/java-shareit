@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user;
 
-import ru.practicum.shareit.Exception.NotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;

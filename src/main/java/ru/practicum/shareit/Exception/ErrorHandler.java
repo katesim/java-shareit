@@ -1,4 +1,4 @@
-package ru.practicum.shareit.Exception;
+package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +25,14 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleAnnotationValidationException(final RuntimeException runtimeException) {
         return runtimeException.getMessage();
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<String> handleForbiddenException(ForbiddenException exception) {
+        log.error(exception.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exception.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
