@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.request.ItemRequest;
 
 @Data
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class Item {
     Long id;
     String name;
