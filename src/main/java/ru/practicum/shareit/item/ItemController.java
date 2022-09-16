@@ -25,7 +25,7 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public Item getById(@PathVariable Long id) throws NotFoundException {
+    public Item getById(@PathVariable long id) throws NotFoundException {
         return itemService.getById(id);
     }
 
@@ -38,7 +38,7 @@ public class ItemController {
 
     @PatchMapping("{id}")
     public Item update(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @PathVariable Long id,
+                       @PathVariable long id,
                        @RequestBody ItemDto itemDto) throws ValidationException {
         Item item = ItemMapper.toItem(itemDto, userId, null);
         item.setId(id);
@@ -46,7 +46,7 @@ public class ItemController {
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable long id) {
         itemService.delete(id);
     }
 

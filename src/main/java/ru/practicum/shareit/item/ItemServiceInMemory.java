@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceInMemory implements ItemService {
-    private Long currId = 0L;
+    private long currId = 0L;
     private final Map<Long, Item> items = new HashMap<>();
     private final UserService userService;
 
@@ -24,7 +24,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public List<Item> getAllByOwner(Long owner) {
+    public List<Item> getAllByOwner(long owner) {
         userService.getById(owner); // TODO так нормально валидировать существование пользователя?
 
         List<Item> collectedItems = new ArrayList<>();
@@ -37,7 +37,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public Item getById(Long id) throws NotFoundException {
+    public Item getById(long id) throws NotFoundException {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + id + " несуществует");
         }
@@ -62,7 +62,7 @@ public class ItemServiceInMemory implements ItemService {
 
         Item prevItem = items.get(item.getId());
 
-        if (prevItem.getOwner() != item.getOwner()) {
+        if (item.getOwner() != prevItem.getOwner()) {
             throw new ForbiddenException("Изменение предмета доступно только владельцу");
         }
         if (item.getName() != null) {
@@ -79,7 +79,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public void delete(Long id) throws NotFoundException {
+    public void delete(long id) throws NotFoundException {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Предмет с id=" + id + " несуществует");
         }

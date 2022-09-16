@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public User getById(@PathVariable Long id) throws NotFoundException {
+    public User getById(@PathVariable long id) throws NotFoundException {
         return userService.getById(id);
     }
 
@@ -37,14 +37,14 @@ public class UserController {
     }
 
     @PatchMapping("{id}")
-    public User update(@PathVariable Long id,
+    public User update(@PathVariable long id,
                        @Validated(Update.class) @RequestBody UserDto userDto) throws ValidationException {
         User user = UserMapper.toUser(userDto);
         return userService.update(id, user);
     }
 
     @DeleteMapping("{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable long id) {
         userService.delete(id);
     }
 

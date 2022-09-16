@@ -10,7 +10,7 @@ import java.util.*;
 @Slf4j
 @Service
 public class UserServiceInMemory implements UserService {
-    private Long currId = 0L;
+    private long currId = 0L;
     private final Map<Long, User> users = new HashMap<>();
     private Set<String> emails = new HashSet<>();
 
@@ -20,7 +20,7 @@ public class UserServiceInMemory implements UserService {
     }
 
     @Override
-    public User getById(Long id) throws NotFoundException {
+    public User getById(long id) throws NotFoundException {
         if (users.containsKey(id)) {
             return users.get(id);
         } else {
@@ -41,7 +41,7 @@ public class UserServiceInMemory implements UserService {
     }
 
     @Override
-    public User update(Long id, User user) throws NotFoundException {
+    public User update(long id, User user) throws NotFoundException {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + user.getId() + " несуществует");
         }
@@ -64,7 +64,7 @@ public class UserServiceInMemory implements UserService {
     }
 
     @Override
-    public void delete(Long id) throws NotFoundException {
+    public void delete(long id) throws NotFoundException {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + id + " несуществует");
         }

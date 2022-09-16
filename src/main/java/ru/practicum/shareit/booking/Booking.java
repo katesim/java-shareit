@@ -8,10 +8,10 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class Booking {
-    Long id;
-    String start; // дата и время начала бронирования;
-    String end; // дата и время конца бронирования;
-    Long item;// — вещь, которую пользователь бронирует;
-    Long booker; // — пользователь, который осуществляет бронирование;
+    long id;
+    String start;
+    String end;
+    long item;
+    long booker;
     Status status;
 }
