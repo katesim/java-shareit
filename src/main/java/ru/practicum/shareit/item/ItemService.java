@@ -12,4 +12,5 @@ public interface ItemService {
     Item add(Item item);
     Item update(Item item) throws NotFoundException;
     void delete(Long id) throws NotFoundException;
+    List<Item> search(String text);
 }

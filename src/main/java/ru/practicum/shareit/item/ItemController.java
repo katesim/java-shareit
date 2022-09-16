@@ -54,5 +54,9 @@ public class ItemController {
         itemService.delete(id);
     }
 
+    @GetMapping("search")
+    public List<Item> getAll(@RequestParam String text) {
+        return itemService.search(text);
+    }
 
 }

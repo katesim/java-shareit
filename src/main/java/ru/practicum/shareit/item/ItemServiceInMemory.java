@@ -8,10 +8,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -39,7 +36,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public Item getById(Long id) throws  NotFoundException {
+    public Item getById(Long id) throws NotFoundException {
         if (items.containsKey(id)) {
             return items.get(id);
         } else {
@@ -81,12 +78,32 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public void delete(Long id) throws NotFoundException{
+    public void delete(Long id) throws NotFoundException {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Предмет с id=" + id + " несуществует");
         }
 
         items.remove(id);
         log.info("Предмет с id={} удален", id);
+    }
+
+    @Override
+    public List<Item> search(String text) {
+        log.info(text.toLowerCase());
+        List<Item> collectedItems = new ArrayList<>();
+        if (text.isBlank() || text.isEmpty()) {
+            return collectedItems;
+        }
+
+        for (Item item : items.values()) {
+            if (! item.getAvailable()) {
+                continue;
+            }
+            if (item.getName().toLowerCase().contains(text.toLowerCase())
+                    || item.getDescription().toLowerCase().contains(text.toLowerCase())) {
+                collectedItems.add(item);
+            }
+        }
+        return collectedItems;
     }
 }
