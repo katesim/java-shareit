@@ -18,6 +18,6 @@ public class ItemDto {
     @NotBlank(groups = Create.class)
     String description;
     @NotNull(groups = Create.class)
-    Boolean available; // — статус о том, доступна или нет вещь для аренды;
+    Boolean available;
     Long request;
 }

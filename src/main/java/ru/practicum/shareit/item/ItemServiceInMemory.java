@@ -26,6 +26,7 @@ public class ItemServiceInMemory implements ItemService {
     @Override
     public List<Item> getAllByOwner(Long owner) {
         userService.getById(owner); // TODO так нормально валидировать существование пользователя?
+
         List<Item> collectedItems = new ArrayList<>();
         for (Item item : items.values()) {
             if (item.getOwner() == owner) {
@@ -37,16 +38,16 @@ public class ItemServiceInMemory implements ItemService {
 
     @Override
     public Item getById(Long id) throws NotFoundException {
-        if (items.containsKey(id)) {
-            return items.get(id);
-        } else {
+        if (!items.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + id + " несуществует");
         }
+
+        return items.get(id);
     }
 
     @Override
     public Item add(Item item) {
-        userService.getById(item.getOwner()); // TODO так нормально валидировать существование пользователя?
+        userService.getById(item.getOwner());
         item.setId(++currId);
         items.put(currId, item);
         log.info("Предмет с id={} создан", item.getId());
@@ -60,10 +61,10 @@ public class ItemServiceInMemory implements ItemService {
         }
 
         Item prevItem = items.get(item.getId());
+
         if (prevItem.getOwner() != item.getOwner()) {
             throw new ForbiddenException("Изменение предмета доступно только владельцу");
         }
-
         if (item.getName() != null) {
             prevItem.setName(item.getName());
         }
@@ -89,18 +90,18 @@ public class ItemServiceInMemory implements ItemService {
 
     @Override
     public List<Item> search(String text) {
-        log.info(text.toLowerCase());
+        text = text.toLowerCase();
         List<Item> collectedItems = new ArrayList<>();
         if (text.isBlank() || text.isEmpty()) {
             return collectedItems;
         }
 
         for (Item item : items.values()) {
-            if (! item.getAvailable()) {
+            if (!item.getAvailable()) {
                 continue;
             }
-            if (item.getName().toLowerCase().contains(text.toLowerCase())
-                    || item.getDescription().toLowerCase().contains(text.toLowerCase())) {
+            if (item.getName().toLowerCase().contains(text)
+                    || item.getDescription().toLowerCase().contains(text)) {
                 collectedItems.add(item);
             }
         }

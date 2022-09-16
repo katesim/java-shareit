@@ -2,7 +2,6 @@ package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -14,11 +13,10 @@ import javax.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class ErrorHandler {
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<String> handleValidationException(ValidationException exception) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleValidationException(ValidationException exception) {
         log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(exception.getMessage());
+        return exception.getMessage();
     }
 
     @ExceptionHandler({ConstraintViolationException.class, MethodArgumentNotValidException.class})
@@ -28,26 +26,23 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<String> handleForbiddenException(ForbiddenException exception) {
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleForbiddenException(ForbiddenException exception) {
         log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(exception.getMessage());
+        return exception.getMessage();
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleNotFoundException(NotFoundException exception) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleNotFoundException(NotFoundException exception) {
         log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(exception.getMessage());
+        return exception.getMessage();
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Throwable exception) {
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleException(Throwable exception) {
         log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(exception.getMessage());
+        return exception.getMessage();
     }
 }
