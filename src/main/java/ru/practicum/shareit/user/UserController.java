@@ -20,7 +20,7 @@ import java.util.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("")
+    @GetMapping
     public List<User> getAll() {
         return userService.getAll();
     }
@@ -30,7 +30,7 @@ public class UserController {
         return userService.getById(id);
     }
 
-    @PostMapping()
+    @PostMapping
     public User create(@Validated(Create.class) @RequestBody UserDto userDto) throws ValidationException {
         User user = UserMapper.toUser(userDto);
         return userService.add(user);

@@ -37,7 +37,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public Item getById(long id) throws NotFoundException {
+    public Item getById(long id) {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + id + " несуществует");
         }
@@ -55,7 +55,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public Item update(Item item) throws NotFoundException {
+    public Item update(Item item) {
         if (!items.containsKey(item.getId())) {
             throw new NotFoundException("Предмет с id=" + item.getId() + " несуществует");
         }
@@ -79,7 +79,7 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public void delete(long id) throws NotFoundException {
+    public void delete(long id) {
         if (!items.containsKey(id)) {
             throw new NotFoundException("Предмет с id=" + id + " несуществует");
         }

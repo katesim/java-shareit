@@ -20,7 +20,7 @@ public class UserServiceInMemory implements UserService {
     }
 
     @Override
-    public User getById(long id) throws NotFoundException {
+    public User getById(long id) {
         if (users.containsKey(id)) {
             return users.get(id);
         } else {
@@ -41,7 +41,7 @@ public class UserServiceInMemory implements UserService {
     }
 
     @Override
-    public User update(long id, User user) throws NotFoundException {
+    public User update(long id, User user) {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + user.getId() + " несуществует");
         }
@@ -64,7 +64,7 @@ public class UserServiceInMemory implements UserService {
     }
 
     @Override
-    public void delete(long id) throws NotFoundException {
+    public void delete(long id) {
         if (!users.containsKey(id)) {
             throw new NotFoundException("Пользователь с id=" + id + " несуществует");
         }

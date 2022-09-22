@@ -19,7 +19,7 @@ import java.util.*;
 public class ItemController {
     private final ItemService itemService;
 
-    @GetMapping("")
+    @GetMapping
     public List<Item> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
         return itemService.getAllByOwner(userId);
     }
@@ -29,7 +29,7 @@ public class ItemController {
         return itemService.getById(id);
     }
 
-    @PostMapping()
+    @PostMapping
     public Item create(@RequestHeader("X-Sharer-User-Id") long userId,
                        @Validated(Create.class) @RequestBody ItemDto itemDto) throws ValidationException {
         Item item = ItemMapper.toItem(itemDto, userId, null);
