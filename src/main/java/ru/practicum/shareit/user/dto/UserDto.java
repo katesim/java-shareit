@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @SuperBuilder
 public class UserDto {
     @NotBlank(groups = Create.class)
-    String name;
+    private String name;
     @NotBlank(groups = Create.class) @Email(groups = Create.class) @Email(groups = Update.class)
-    String email;
+    private String email;
 }

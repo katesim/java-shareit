@@ -8,10 +8,10 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class Booking {
-    long id;
-    String start;
-    String end;
-    long item;
-    long booker;
-    Status status;
+    private long id;
+    private String start;
+    private String end;
+    private long item;
+    private long booker;
+    private Status status;
 }

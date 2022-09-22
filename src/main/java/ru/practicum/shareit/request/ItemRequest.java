@@ -8,8 +8,8 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class ItemRequest {
-    long id;
-    String description;
-    long requestor;
-    String created;
+    private long id;
+    private String description;
+    private long requestor;
+    private String created;
 }

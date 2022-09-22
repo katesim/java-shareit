@@ -9,10 +9,10 @@ import ru.practicum.shareit.request.ItemRequest;
 @AllArgsConstructor
 @SuperBuilder
 public class Item {
-    long id;
-    String name;
-    String description;
-    Boolean available;
-    long owner;
-    ItemRequest request;
+    private long id;
+    private String name;
+    private String description;
+    private Boolean available;
+    private long owner;
+    private ItemRequest request;
 }
