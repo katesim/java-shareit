@@ -12,7 +12,7 @@ import java.util.*;
 public class UserServiceInMemory implements UserService {
     private long currId = 0L;
     private final Map<Long, User> users = new HashMap<>();
-    private Set<String> emails = new HashSet<>();
+    private final Set<String> emails = new HashSet<>();
 
     @Override
     public List<User> getAll() {

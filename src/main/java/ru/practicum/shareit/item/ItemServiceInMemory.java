@@ -25,7 +25,7 @@ public class ItemServiceInMemory implements ItemService {
 
     @Override
     public List<Item> getAllByOwner(long owner) {
-        userService.getById(owner); // TODO так нормально валидировать существование пользователя?
+        userService.getById(owner);
 
         List<Item> collectedItems = new ArrayList<>();
         for (Item item : items.values()) {
@@ -90,12 +90,12 @@ public class ItemServiceInMemory implements ItemService {
 
     @Override
     public List<Item> search(String text) {
-        text = text.toLowerCase();
         List<Item> collectedItems = new ArrayList<>();
         if (text.isBlank() || text.isEmpty()) {
             return collectedItems;
         }
 
+        text = text.toLowerCase();
         for (Item item : items.values()) {
             if (!item.getAvailable()) {
                 continue;
