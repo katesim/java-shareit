@@ -12,6 +12,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -21,26 +22,28 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getAll() {
-        return userService.getAll();
+    public List<UserDto> getAll() {
+        return userService.getAll().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("{id}")
-    public User getById(@PathVariable long id) throws NotFoundException {
-        return userService.getById(id);
+    public UserDto getById(@PathVariable long id) throws NotFoundException {
+        return UserMapper.toUserDto(userService.getById(id));
     }
 
     @PostMapping
-    public User create(@Validated(Create.class) @RequestBody UserDto userDto) throws ValidationException {
+    public UserDto create(@Validated(Create.class) @RequestBody UserDto userDto) throws ValidationException {
         User user = UserMapper.toUser(userDto);
-        return userService.add(user);
+        return UserMapper.toUserDto(userService.add(user));
     }
 
     @PatchMapping("{id}")
-    public User update(@PathVariable long id,
+    public UserDto update(@PathVariable long id,
                        @Validated(Update.class) @RequestBody UserDto userDto) throws ValidationException {
         User user = UserMapper.toUser(userDto);
-        return userService.update(id, user);
+        return UserMapper.toUserDto(userService.update(id, user));
     }
 
     @DeleteMapping("{id}")

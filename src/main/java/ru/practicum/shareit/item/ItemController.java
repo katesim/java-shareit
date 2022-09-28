@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.markers.Create;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -20,29 +21,32 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<Item> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllByOwner(userId);
+    public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemService.getAllByOwner(userId).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("{id}")
-    public Item getById(@PathVariable long id) throws NotFoundException {
-        return itemService.getById(id);
+    public ItemDto getById(@PathVariable long id) throws NotFoundException {
+
+        return ItemMapper.toItemDto(itemService.getById(id));
     }
 
     @PostMapping
-    public Item create(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @Validated(Create.class) @RequestBody ItemDto itemDto) throws ValidationException {
+    public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
+                          @Validated(Create.class) @RequestBody ItemDto itemDto) throws ValidationException {
         Item item = ItemMapper.toItem(itemDto, userId, null);
-        return itemService.add(item);
+        return ItemMapper.toItemDto(itemService.add(item));
     }
 
     @PatchMapping("{id}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @PathVariable long id,
-                       @RequestBody ItemDto itemDto) throws ValidationException {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+                          @PathVariable long id,
+                          @RequestBody ItemDto itemDto) throws ValidationException {
         Item item = ItemMapper.toItem(itemDto, userId, null);
         item.setId(id);
-        return itemService.update(item);
+        return ItemMapper.toItemDto(itemService.update(item));
     }
 
     @DeleteMapping("{id}")
@@ -51,8 +55,10 @@ public class ItemController {
     }
 
     @GetMapping("search")
-    public List<Item> getAll(@RequestParam String text) {
-        return itemService.search(text);
+    public List<ItemDto> getAll(@RequestParam String text) {
+        return itemService.search(text).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
 }
