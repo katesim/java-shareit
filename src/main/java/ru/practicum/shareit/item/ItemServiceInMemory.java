@@ -27,13 +27,13 @@ public class ItemServiceInMemory implements ItemService {
     public List<Item> getAllByOwner(long owner) {
         userService.getById(owner);
 
-        List<Item> collectedItems = new ArrayList<>();
+        List<Item> itemsByOwners = new ArrayList<>();
         for (Item item : items.values()) {
             if (item.getOwner() == owner) {
-                collectedItems.add(item);
+                itemsByOwners.add(item);
             }
         }
-        return collectedItems;
+        return itemsByOwners;
     }
 
     @Override
