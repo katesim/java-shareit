@@ -13,7 +13,7 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ItemServiceInMemory implements ItemService {
+public class ItemServiceImpl implements ItemService {
     private final ItemRepository repository;
     private final UserService userService;
 
@@ -25,14 +25,7 @@ public class ItemServiceInMemory implements ItemService {
     @Override
     public List<Item> getAllByOwner(Long ownerId) {
         userService.getById(ownerId);
-
-        List<Item> itemsByOwners = new ArrayList<>();
-        for (Item item : getAll()) { // TODO заменить на запрос к БД
-            if (item.getOwnerId() == ownerId) {
-                itemsByOwners.add(item);
-            }
-        }
-        return itemsByOwners;
+        return repository.findByOwnerId(ownerId);
     }
 
     @Override
@@ -80,20 +73,14 @@ public class ItemServiceInMemory implements ItemService {
     @Override
     public List<Item> search(String text) {
         List<Item> collectedItems = new ArrayList<>();
+
         if (text.isBlank() || text.isEmpty()) {
             return collectedItems;
         }
 
         text = text.toLowerCase();
-        for (Item item : getAll()) { // TODO заменить на запрос к БД
-            if (!item.getAvailable()) {
-                continue;
-            }
-            if (item.getName().toLowerCase().contains(text)
-                    || item.getDescription().toLowerCase().contains(text)) {
-                collectedItems.add(item);
-            }
-        }
+
+        collectedItems = repository.search(text);
         return collectedItems;
     }
 }
