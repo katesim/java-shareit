@@ -14,22 +14,21 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceInMemory implements ItemService {
-    private long currId = 0L;
-    private final Map<Long, Item> items = new HashMap<>();
+    private final ItemRepository repository;
     private final UserService userService;
 
     @Override
     public List<Item> getAll() {
-        return new ArrayList<>(items.values());
+        return repository.findAll();
     }
 
     @Override
-    public List<Item> getAllByOwner(long owner) {
-        userService.getById(owner);
+    public List<Item> getAllByOwner(Long ownerId) {
+        userService.getById(ownerId);
 
         List<Item> itemsByOwners = new ArrayList<>();
-        for (Item item : items.values()) {
-            if (item.getOwner() == owner) {
+        for (Item item : getAll()) { // TODO заменить на запрос к БД
+            if (item.getOwnerId() == ownerId) {
                 itemsByOwners.add(item);
             }
         }
@@ -37,32 +36,24 @@ public class ItemServiceInMemory implements ItemService {
     }
 
     @Override
-    public Item getById(long id) {
-        if (!items.containsKey(id)) {
-            throw new NotFoundException("Пользователь с id=" + id + " несуществует");
-        }
-
-        return items.get(id);
+    public Item getById(Long id) {
+        return repository.findById(id).orElseThrow(() ->
+                new NotFoundException("Предмет с id=" + id + " несуществует"));
     }
 
     @Override
     public Item add(Item item) {
-        userService.getById(item.getOwner());
-        item.setId(++currId);
-        items.put(currId, item);
-        log.info("Предмет с id={} создан", item.getId());
-        return item;
+        userService.getById(item.getOwnerId());
+        Item savedItem = repository.save(item);
+        log.info("Предмет с id={} создан", savedItem.getId());
+        return savedItem;
     }
 
     @Override
     public Item update(Item item) {
-        if (!items.containsKey(item.getId())) {
-            throw new NotFoundException("Предмет с id=" + item.getId() + " несуществует");
-        }
+        Item prevItem = getById(item.getId());
 
-        Item prevItem = items.get(item.getId());
-
-        if (item.getOwner() != prevItem.getOwner()) {
+        if (item.getOwnerId() != prevItem.getOwnerId()) {
             throw new ForbiddenException("Изменение предмета доступно только владельцу");
         }
         if (item.getName() != null) {
@@ -74,17 +65,15 @@ public class ItemServiceInMemory implements ItemService {
         if (item.getAvailable() != null) {
             prevItem.setAvailable(item.getAvailable());
         }
+        repository.save(prevItem);
         log.info("Предмет с id={} обновлен", prevItem.getId());
         return prevItem;
     }
 
     @Override
-    public void delete(long id) {
-        if (!items.containsKey(id)) {
-            throw new NotFoundException("Предмет с id=" + id + " несуществует");
-        }
-
-        items.remove(id);
+    public void delete(Long id) {
+        Item item = getById(id);
+        repository.delete(item);
         log.info("Предмет с id={} удален", id);
     }
 
@@ -96,7 +85,7 @@ public class ItemServiceInMemory implements ItemService {
         }
 
         text = text.toLowerCase();
-        for (Item item : items.values()) {
+        for (Item item : getAll()) { // TODO заменить на запрос к БД
             if (!item.getAvailable()) {
                 continue;
             }

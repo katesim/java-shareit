@@ -7,15 +7,15 @@ import java.util.List;
 public interface ItemService {
     List<Item> getAll();
 
-    Item getById(long id);
+    Item getById(Long id);
 
-    List<Item> getAllByOwner(long owner);
+    List<Item> getAllByOwner(Long owner);
 
     Item add(Item item);
 
     Item update(Item item);
 
-    void delete(long id);
+    void delete(Long id);
 
     List<Item> search(String text);
 }
