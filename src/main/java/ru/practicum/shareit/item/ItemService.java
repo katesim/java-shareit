@@ -9,7 +9,7 @@ public interface ItemService {
 
     Item getById(Long id);
 
-    List<Item> getAllByOwner(Long owner);
+    List<Item> getAllByOwner(Long ownerId);
 
     Item add(Item item);
 

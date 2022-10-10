@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -13,10 +12,10 @@ import ru.practicum.shareit.markers.Create;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
+
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
 
@@ -29,7 +28,6 @@ public class ItemController {
 
     @GetMapping("{id}")
     public ItemDto getById(@PathVariable long id) throws NotFoundException {
-
         return ItemMapper.toItemDto(itemService.getById(id));
     }
 
