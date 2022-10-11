@@ -8,7 +8,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
-import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,47 +27,41 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByUserId(Long userId, State state, Sort sort) {
+    public List<Booking> getAllByUserIdOrderByStartDesc(Long userId, State state) {
         List<Booking> bookings;
         LocalDateTime dateTime = LocalDateTime.now();
         userService.getById(userId);
         switch (state) {
             case ALL:
-                bookings = repository.findByBookerId(userId, sort);
+                bookings = repository.findByBookerIdOrderByStartDesc(userId);
                 break;
             case CURRENT:
-                bookings = repository.findByBookerIdAndStartIsBeforeAndEndIsAfterAndStatusEquals(
+                bookings = repository.findByBookerIdAndStartIsBeforeAndEndIsAfterAndStatusEqualsOrderByStartDesc(
                         userId,
                         dateTime,
                         dateTime,
-                        Status.APPROVED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        Status.APPROVED);
                 break;
             case PAST:
-                bookings = repository.findByBookerIdAndEndIsBeforeAndStatusEquals(
+                bookings = repository.findByBookerIdAndEndIsBeforeAndStatusEqualsOrderByStartDesc(
                         userId,
                         dateTime,
-                        Status.APPROVED,
-                        sort);
+                        Status.APPROVED);
                 break;
             case FUTURE:
-                bookings = repository.findByBookerIdAndStartIsAfter(
+                bookings = repository.findByBookerIdAndStartIsAfterOrderByStartDesc(
                         userId,
-                        dateTime,
-                        //Status.APPROVED
-                        sort);
+                        dateTime);
                 break;
             case WAITING:
-                bookings = repository.findByBookerIdAndStatusEquals(
+                bookings = repository.findByBookerIdAndStatusEqualsOrderByStartDesc(
                         userId,
-                        Status.WAITING,
-                        sort);
+                        Status.WAITING);
                 break;
             case REJECTED:
-                bookings = repository.findByBookerIdAndStatusEquals(
+                bookings = repository.findByBookerIdAndStatusEqualsOrderByStartDesc(
                         userId,
-                        Status.REJECTED,
-                        sort);
+                        Status.REJECTED);
                 break;
             default:
                 throw new NotFoundException("Недопустимый статус");
@@ -78,7 +71,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByOwnerId(Long ownerId, State state, Sort sort) {
+    public List<Booking> getAllByOwnerIdOrderByStartDesc(Long ownerId, State state) {
         List<Long> ownerItems = itemService.getAllByOwnerIdOrderByIdAsc(ownerId)
                 .stream()
                 .map(Item::getId)
@@ -90,41 +83,35 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookings = repository.findByItemIdIn(ownerItems, sort);
+                bookings = repository.findByItemIdInOrderByStartDesc(ownerItems);
                 break;
             case CURRENT:
-                bookings = repository.findByItemIdInAndStartBeforeAndEndIsAfterAndStatusEquals(
+                bookings = repository.findByItemIdInAndStartBeforeAndEndIsAfterAndStatusEqualsOrderByStartDesc(
                         ownerItems,
                         dateTime,
                         dateTime,
-                        Status.APPROVED,
-                        sort);
+                        Status.APPROVED);
                 break;
             case PAST:
-                bookings = repository.findByItemIdInAndEndIsBeforeAndStatusEquals(
+                bookings = repository.findByItemIdInAndEndIsBeforeAndStatusEqualsOrderByStartDesc(
                         ownerItems,
                         dateTime,
-                        Status.APPROVED,
-                        sort);
+                        Status.APPROVED);
                 break;
             case FUTURE:
-                bookings = repository.findByItemIdInAndStartIsAfter(
+                bookings = repository.findByItemIdInAndStartIsAfterOrderByStartDesc(
                         ownerItems,
-                        dateTime,
-                        //Status.APPROVED,
-                        sort);
+                        dateTime);
                 break;
             case WAITING:
-                bookings = repository.findByItemIdInAndStatusEquals(
+                bookings = repository.findByItemIdInAndStatusEqualsOrderByStartDesc(
                         ownerItems,
-                        Status.WAITING,
-                        sort);
+                        Status.WAITING);
                 break;
             case REJECTED:
-                bookings = repository.findByItemIdInAndStatusEquals(
+                bookings = repository.findByItemIdInAndStatusEqualsOrderByStartDesc(
                         ownerItems,
-                        Status.REJECTED,
-                        sort);
+                        Status.REJECTED);
                 break;
             default:
                 throw new NotFoundException("Недопустимый статус");

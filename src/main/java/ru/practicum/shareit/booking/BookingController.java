@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -41,10 +40,9 @@ public class BookingController {
             throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
         }
 
-        return bookingService.getAllByUserId(
+        return bookingService.getAllByUserIdOrderByStartDesc(
                         userId,
-                        stateEnum,
-                        Sort.by(Sort.Direction.DESC, "start"))
+                        stateEnum)
                 .stream()
                 .map(bookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
@@ -62,10 +60,9 @@ public class BookingController {
         }
 
 
-        return bookingService.getAllByOwnerId(
+        return bookingService.getAllByOwnerIdOrderByStartDesc(
                         userId,
-                        stateEnum,
-                        Sort.by(Sort.Direction.DESC, "start"))
+                        stateEnum)
                 .stream()
                 .map(bookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
