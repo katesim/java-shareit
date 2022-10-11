@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Sort;
+
 import java.util.List;
 
 public interface BookingService {
@@ -7,9 +9,11 @@ public interface BookingService {
 
     Booking getById(Long id, Long userId);
 
-    List<Booking> getAllByUserId(Long userId, State state);
+    List<Booking> getByItemId(Long itemId);
 
-    List<Booking> getAllByOwnerId(Long ownerId, State state);
+    List<Booking> getAllByUserId(Long userId, State state, Sort sort);
+
+    List<Booking> getAllByOwnerId(Long ownerId, State state, Sort sort);
 
     Booking add(Booking booking, Long userId);
 

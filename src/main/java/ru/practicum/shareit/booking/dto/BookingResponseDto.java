@@ -7,7 +7,7 @@ import ru.practicum.shareit.booking.Status;
 @Data
 @AllArgsConstructor
 public class BookingResponseDto {
-    private long id;
+    private Long id;
     private String start;
     private String end;
     private Item item;

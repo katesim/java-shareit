@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -18,4 +20,6 @@ public interface ItemService {
     void delete(Long id);
 
     List<Item> search(String text);
+    ItemWithBookingsDto setBookings(ItemWithBookingsDto itemDto, List<Booking> bookings);
+
 }

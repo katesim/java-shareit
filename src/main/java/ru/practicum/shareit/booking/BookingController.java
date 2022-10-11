@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -30,21 +31,42 @@ public class BookingController {
     }
 
     @GetMapping()
-    public List<BookingResponseDto> getAllByUserId(@RequestParam(defaultValue = "ALL", required = false) State state,
+    public List<BookingResponseDto> getAllByUserId(@RequestParam(defaultValue = "ALL", required = false) String state,
                                                    @RequestHeader("X-Sharer-User-Id") long userId
     ) throws NotFoundException, ForbiddenException {
+        State stateEnum;
+        try {
+            stateEnum = State.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
+        }
 
-        return bookingService.getAllByUserId(userId, state).stream()
+        return bookingService.getAllByUserId(
+                        userId,
+                        stateEnum,
+                        Sort.by(Sort.Direction.DESC, "start"))
+                .stream()
                 .map(bookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("owner")
-    public List<BookingResponseDto> getAllByOwnerId(@RequestParam(defaultValue = "ALL", required = false) State state,
+    public List<BookingResponseDto> getAllByOwnerId(@RequestParam(defaultValue = "ALL", required = false) String state,
                                                     @RequestHeader("X-Sharer-User-Id") long userId
     ) throws NotFoundException, ForbiddenException {
+        State stateEnum;
+        try {
+            stateEnum = State.valueOf(state);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
+        }
 
-        return bookingService.getAllByOwnerId(userId, state).stream()
+
+        return bookingService.getAllByOwnerId(
+                        userId,
+                        stateEnum,
+                        Sort.by(Sort.Direction.DESC, "start"))
+                .stream()
                 .map(bookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
     }

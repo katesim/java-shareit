@@ -3,11 +3,15 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -82,5 +86,21 @@ public class ItemServiceImpl implements ItemService {
 
         collectedItems = repository.search(text);
         return collectedItems;
+    }
+
+    @Override
+    public ItemWithBookingsDto setBookings(ItemWithBookingsDto itemDto, List<Booking> bookings) {
+        LocalDateTime now = LocalDateTime.now();
+        if (!bookings.isEmpty()) {
+            Booking last = bookings.get(0);
+            Booking next = bookings.get(bookings.size() - 1);
+            for (Booking b : bookings) {
+                if (b.getEnd().isBefore(now) && b.getEnd().isAfter(last.getEnd())) last = b;
+                if (b.getStart().isAfter(now) && b.getStart().isBefore(next.getStart())) next = b;
+            }
+            itemDto.setLastBooking(last);
+            itemDto.setNextBooking(next);
+        }
+        return itemDto;
     }
 }

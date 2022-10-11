@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemService;
@@ -29,13 +28,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByUserId(Long userId, State state) {
+    public List<Booking> getAllByUserId(Long userId, State state, Sort sort) {
         List<Booking> bookings;
         LocalDateTime dateTime = LocalDateTime.now();
         userService.getById(userId);
         switch (state) {
             case ALL:
-                bookings = repository.findByBookerId(userId, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = repository.findByBookerId(userId, sort);
                 break;
             case CURRENT:
                 bookings = repository.findByBookerIdAndStartIsBeforeAndEndIsAfterAndStatusEquals(
@@ -50,26 +49,26 @@ public class BookingServiceImpl implements BookingService {
                         userId,
                         dateTime,
                         Status.APPROVED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case FUTURE:
                 bookings = repository.findByBookerIdAndStartIsAfter(
                         userId,
                         dateTime,
                         //Status.APPROVED
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case WAITING:
                 bookings = repository.findByBookerIdAndStatusEquals(
                         userId,
                         Status.WAITING,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case REJECTED:
                 bookings = repository.findByBookerIdAndStatusEquals(
                         userId,
                         Status.REJECTED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             default:
                 throw new NotFoundException("Недопустимый статус");
@@ -79,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByOwnerId(Long ownerId, State state) {
+    public List<Booking> getAllByOwnerId(Long ownerId, State state, Sort sort) {
         List<Long> ownerItems = itemService.getAllByOwner(ownerId)
                 .stream()
                 .map(Item::getId)
@@ -91,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookings = repository.findByItemIdIn(ownerItems, Sort.by(Sort.Direction.DESC, "start"));
+                bookings = repository.findByItemIdIn(ownerItems, sort);
                 break;
             case CURRENT:
                 bookings = repository.findByItemIdInAndStartBeforeAndEndIsAfterAndStatusEquals(
@@ -99,33 +98,33 @@ public class BookingServiceImpl implements BookingService {
                         dateTime,
                         dateTime,
                         Status.APPROVED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case PAST:
                 bookings = repository.findByItemIdInAndEndIsBeforeAndStatusEquals(
                         ownerItems,
                         dateTime,
                         Status.APPROVED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case FUTURE:
                 bookings = repository.findByItemIdInAndStartIsAfter(
                         ownerItems,
                         dateTime,
                         //Status.APPROVED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case WAITING:
                 bookings = repository.findByItemIdInAndStatusEquals(
                         ownerItems,
                         Status.WAITING,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             case REJECTED:
                 bookings = repository.findByItemIdInAndStatusEquals(
                         ownerItems,
                         Status.REJECTED,
-                        Sort.by(Sort.Direction.DESC, "start"));
+                        sort);
                 break;
             default:
                 throw new NotFoundException("Недопустимый статус");
@@ -142,10 +141,15 @@ public class BookingServiceImpl implements BookingService {
         Item item = itemService.getById(booking.getItemId());
 
         if (!userId.equals(booking.getBookerId()) & !userId.equals(item.getOwnerId())) {
-            throw new ForbiddenException("Просмотр бронирования доступно только автору или владельцу");
+            throw new NotFoundException("Просмотр бронирования доступно только автору или владельцу");
         }
 
         return booking;
+    }
+
+    @Override
+    public List<Booking> getByItemId(Long itemId) {
+        return repository.findByItemId(itemId);
     }
 
     @Override
@@ -157,7 +161,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (userId.equals(item.getOwnerId())) {
-            throw new ValidationException("Вы владелец не может бронировать собственный предмет");
+            throw new NotFoundException("Владелец не может бронировать собственный предмет");
         }
 
         if (booking.getStart().isBefore(currDatetime)
@@ -181,7 +185,7 @@ public class BookingServiceImpl implements BookingService {
         Item item = itemService.getById(prevBooking.getItemId());
 
         if (!userId.equals(item.getOwnerId())) {
-            throw new ForbiddenException("Изменение статуса бронирования доступно только владельцу");
+            throw new NotFoundException("Изменение статуса бронирования доступно только владельцу");
         }
 
         if (!prevBooking.getStatus().equals(Status.WAITING)) {
