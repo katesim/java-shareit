@@ -9,7 +9,7 @@ public interface BookingService {
 
     Booking getById(Long id, Long userId);
 
-    List<Booking> getByItemId(Long itemId);
+    List<Booking> getByItemId(Long itemId, Status status);
 
     List<Booking> getAllByUserId(Long userId, State state, Sort sort);
 

@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getAllByOwnerId(Long ownerId, State state, Sort sort) {
-        List<Long> ownerItems = itemService.getAllByOwner(ownerId)
+        List<Long> ownerItems = itemService.getAllByOwnerIdOrderByIdAsc(ownerId)
                 .stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
@@ -148,8 +148,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getByItemId(Long itemId) {
-        return repository.findByItemId(itemId);
+    public List<Booking> getByItemId(Long itemId, Status status) {
+        return repository.findByItemIdAndStatusEquals(itemId, status);
     }
 
     @Override

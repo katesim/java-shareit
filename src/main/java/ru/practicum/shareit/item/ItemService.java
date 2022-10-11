@@ -11,7 +11,7 @@ public interface ItemService {
 
     Item getById(Long id);
 
-    List<Item> getAllByOwner(Long ownerId);
+    List<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId);
 
     Item add(Item item);
 

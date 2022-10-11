@@ -5,6 +5,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -27,9 +28,9 @@ public class ItemController {
     public List<ItemWithBookingsDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
         List<ItemWithBookingsDto> ownersItemsWithBookingsDto = new ArrayList<>();
 
-        for (Item item : itemService.getAllByOwner(userId)) {
+        for (Item item : itemService.getAllByOwnerIdOrderByIdAsc(userId)) {
             ItemWithBookingsDto itemDto = ItemMapper.toItemWithBookingsDto(item, null, null);
-            List<Booking> bookings = bookingService.getByItemId(itemDto.getId());
+            List<Booking> bookings = bookingService.getByItemId(itemDto.getId(), Status.APPROVED);
             itemService.setBookings(itemDto, bookings);
             ownersItemsWithBookingsDto.add(itemDto);
         }
@@ -38,10 +39,14 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public ItemWithBookingsDto getById(@PathVariable long id) throws NotFoundException {
-        ItemWithBookingsDto itemDto = ItemMapper.toItemWithBookingsDto(itemService.getById(id), null, null);
-        List<Booking> bookings = bookingService.getByItemId(itemDto.getId());
-        itemService.setBookings(itemDto, bookings);
+    public ItemWithBookingsDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+                                       @PathVariable long id) throws NotFoundException {
+        Item item = itemService.getById(id);
+        ItemWithBookingsDto itemDto = ItemMapper.toItemWithBookingsDto(item, null, null);
+        List<Booking> bookings = bookingService.getByItemId(itemDto.getId(), Status.APPROVED);
+        if (userId == item.getOwnerId()) {
+            itemService.setBookings(itemDto, bookings);
+        }
         return itemDto;
     }
 
