@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
@@ -40,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item add(Item item) {
         userService.getById(item.getOwnerId());
         Item savedItem = itemRepository.save(item);
@@ -48,6 +51,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Item update(Item item) {
         Item prevItem = getById(item.getId());
 
@@ -69,6 +73,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Item item = getById(id);
         itemRepository.delete(item);
@@ -90,6 +95,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public Comment addComment(Comment comment, List<Booking> authorBookings) {
         List<Long> itemsIds = authorBookings.stream().map(Booking::getItemId).collect(Collectors.toList());
         if (!itemsIds.contains(comment.getItemId())) {

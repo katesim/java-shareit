@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemService;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final UserService userService;
@@ -169,6 +171,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking add(Booking booking, Long userId) {
         Item item = itemService.getById(booking.getItemId());
         LocalDateTime currDatetime = LocalDateTime.now();
@@ -196,6 +199,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking updateStatus(Long id, Long userId, boolean approved) {
         Booking prevBooking = getById(id, userId);
         Item item = itemService.getById(prevBooking.getItemId());
