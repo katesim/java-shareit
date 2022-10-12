@@ -9,6 +9,10 @@ public interface BookingService {
 
     List<Booking> getByItemId(Long itemId, Status status);
 
+    Booking getLastBookingByItemId(Long itemId, Status status);
+
+    Booking getNextBookingByItemId(Long itemId, Status status);
+
     List<Booking> getAllByUserIdOrderByStartDesc(Long userId, State state);
 
     List<Booking> getAllByOwnerIdOrderByStartDesc(Long ownerId, State state);

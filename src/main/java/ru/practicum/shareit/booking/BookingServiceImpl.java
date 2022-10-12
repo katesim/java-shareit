@@ -36,11 +36,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = repository.findByBookerIdOrderByStartDesc(userId);
                 break;
             case CURRENT:
-                bookings = repository.findByBookerIdAndStartIsBeforeAndEndIsAfterAndStatusEqualsOrderByStartDesc(
+                bookings = repository.findByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(
                         userId,
                         dateTime,
-                        dateTime,
-                        Status.APPROVED);
+                        dateTime);
                 break;
             case PAST:
                 bookings = repository.findByBookerIdAndEndIsBeforeAndStatusEqualsOrderByStartDesc(
@@ -86,11 +85,10 @@ public class BookingServiceImpl implements BookingService {
                 bookings = repository.findByItemIdInOrderByStartDesc(ownerItems);
                 break;
             case CURRENT:
-                bookings = repository.findByItemIdInAndStartBeforeAndEndIsAfterAndStatusEqualsOrderByStartDesc(
+                bookings = repository.findByItemIdInAndStartBeforeAndEndIsAfterOrderByStartDesc(
                         ownerItems,
                         dateTime,
-                        dateTime,
-                        Status.APPROVED);
+                        dateTime);
                 break;
             case PAST:
                 bookings = repository.findByItemIdInAndEndIsBeforeAndStatusEqualsOrderByStartDesc(
@@ -137,6 +135,37 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getByItemId(Long itemId, Status status) {
         return repository.findByItemIdAndStatusEquals(itemId, status);
+    }
+
+    @Override
+    public Booking getLastBookingByItemId(Long itemId, Status status) {
+        List<Booking> bookings = getByItemId(itemId, status);
+        LocalDateTime now = LocalDateTime.now();
+        Booking lastBooking = null;
+        if (!bookings.isEmpty()) {
+            Booking last = bookings.get(0);
+            for (Booking b : bookings) {
+                if (b.getEnd().isBefore(now) && b.getEnd().isAfter(last.getEnd())) last = b;
+            }
+            lastBooking = last;
+        }
+        return lastBooking;
+    }
+
+    @Override
+    public Booking getNextBookingByItemId(Long itemId, Status status) {
+        List<Booking> bookings = getByItemId(itemId, status);
+        LocalDateTime now = LocalDateTime.now();
+
+        Booking nextBooking = null;
+        if (!bookings.isEmpty()) {
+            Booking next = bookings.get(bookings.size() - 1);
+            for (Booking b : bookings) {
+                if (b.getStart().isAfter(now) && b.getStart().isBefore(next.getStart())) next = b;
+            }
+            nextBooking = next;
+        }
+        return nextBooking;
     }
 
     @Override

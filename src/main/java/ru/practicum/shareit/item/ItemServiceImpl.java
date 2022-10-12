@@ -6,41 +6,43 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private final ItemRepository repository;
+    private final ItemRepository itemRepository;
+    private final CommentRepository commentRepository;
     private final UserService userService;
 
     @Override
     public List<Item> getAll() {
-        return repository.findAll();
+        return itemRepository.findAll();
     }
 
     @Override
     public List<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId) {
         userService.getById(ownerId);
-        return repository.getAllByOwnerIdOrderByIdAsc(ownerId);
+        return itemRepository.getAllByOwnerIdOrderByIdAsc(ownerId);
     }
 
     @Override
     public Item getById(Long id) {
-        return repository.findById(id).orElseThrow(() ->
+        return itemRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Предмет с id=" + id + " несуществует"));
     }
 
     @Override
     public Item add(Item item) {
         userService.getById(item.getOwnerId());
-        Item savedItem = repository.save(item);
+        Item savedItem = itemRepository.save(item);
         log.info("Предмет с id={} создан", savedItem.getId());
         return savedItem;
     }
@@ -61,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.getAvailable() != null) {
             prevItem.setAvailable(item.getAvailable());
         }
-        repository.save(prevItem);
+        itemRepository.save(prevItem);
         log.info("Предмет с id={} обновлен", prevItem.getId());
         return prevItem;
     }
@@ -69,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public void delete(Long id) {
         Item item = getById(id);
-        repository.delete(item);
+        itemRepository.delete(item);
         log.info("Предмет с id={} удален", id);
     }
 
@@ -83,23 +85,24 @@ public class ItemServiceImpl implements ItemService {
 
         text = text.toLowerCase();
 
-        collectedItems = repository.search(text);
+        collectedItems = itemRepository.search(text);
         return collectedItems;
     }
 
     @Override
-    public ItemWithBookingsDto setBookings(ItemWithBookingsDto itemDto, List<Booking> bookings) {
-        LocalDateTime now = LocalDateTime.now();
-        if (!bookings.isEmpty()) {
-            Booking last = bookings.get(0);
-            Booking next = bookings.get(bookings.size() - 1);
-            for (Booking b : bookings) {
-                if (b.getEnd().isBefore(now) && b.getEnd().isAfter(last.getEnd())) last = b;
-                if (b.getStart().isAfter(now) && b.getStart().isBefore(next.getStart())) next = b;
-            }
-            itemDto.setLastBooking(last);
-            itemDto.setNextBooking(next);
+    public Comment addComment(Comment comment, List<Booking> authorBookings) {
+        List<Long> itemsIds = authorBookings.stream().map(Booking::getItemId).collect(Collectors.toList());
+        if (!itemsIds.contains(comment.getItemId())) {
+            throw new ValidationException("Вы не бронировали данный предмет");
         }
-        return itemDto;
+
+        return commentRepository.save(comment);
     }
+
+    @Override
+    public List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId) {
+        return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
+    }
+
+
 }

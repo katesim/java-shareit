@@ -5,13 +5,18 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.item.dto.ItemExtendedDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.markers.Create;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,15 +28,30 @@ import java.util.stream.Collectors;
 public class ItemController {
     private final ItemService itemService;
     private final BookingService bookingService;
+    private final UserService userService;
 
     @GetMapping
-    public List<ItemWithBookingsDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
-        List<ItemWithBookingsDto> ownersItemsWithBookingsDto = new ArrayList<>();
+    public List<ItemExtendedDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+        List<ItemExtendedDto> ownersItemsWithBookingsDto = new ArrayList<>();
 
         for (Item item : itemService.getAllByOwnerIdOrderByIdAsc(userId)) {
-            ItemWithBookingsDto itemDto = ItemMapper.toItemWithBookingsDto(item, null, null);
-            List<Booking> bookings = bookingService.getByItemId(itemDto.getId(), Status.APPROVED);
-            itemService.setBookings(itemDto, bookings);
+            ItemExtendedDto itemDto = ItemMapper.toItemExtendedDto(item);
+
+            Booking next = bookingService.getNextBookingByItemId(itemDto.getId(), Status.APPROVED);
+            Booking last = bookingService.getLastBookingByItemId(itemDto.getId(), Status.APPROVED);
+
+            itemDto.setLastBooking(last);
+            itemDto.setNextBooking(next);
+
+            List<Comment> comments = itemService.getAllCommentsByItemIdOrderByIdAsc(itemDto.getId());
+
+            List<ItemExtendedDto.CommentDto> commentsDtos = comments
+                    .stream()
+                    .map(c -> ItemMapper.toCommentDto(c, userService.getById(c.getId())))
+                    .collect(Collectors.toList());
+
+            itemDto.setComments(commentsDtos);
+
             ownersItemsWithBookingsDto.add(itemDto);
         }
 
@@ -39,14 +59,28 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public ItemWithBookingsDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                       @PathVariable long id) throws NotFoundException {
+    public ItemExtendedDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+                                   @PathVariable long id) throws NotFoundException {
         Item item = itemService.getById(id);
-        ItemWithBookingsDto itemDto = ItemMapper.toItemWithBookingsDto(item, null, null);
-        List<Booking> bookings = bookingService.getByItemId(itemDto.getId(), Status.APPROVED);
+        ItemExtendedDto itemDto = ItemMapper.toItemExtendedDto(item);
         if (userId == item.getOwnerId()) {
-            itemService.setBookings(itemDto, bookings);
+            Booking next = bookingService.getNextBookingByItemId(itemDto.getId(), Status.APPROVED);
+            Booking last = bookingService.getLastBookingByItemId(itemDto.getId(), Status.APPROVED);
+
+            itemDto.setLastBooking(last);
+            itemDto.setNextBooking(next);
         }
+
+        List<Comment> comments = itemService.getAllCommentsByItemIdOrderByIdAsc(itemDto.getId());
+
+        List<ItemExtendedDto.CommentDto> commentsDtos = comments
+                .stream()
+                .map(c -> ItemMapper.toCommentDto(c, userService.getById(c.getId())))
+                .collect(Collectors.toList());
+
+
+        itemDto.setComments(commentsDtos);
+
         return itemDto;
     }
 
@@ -76,6 +110,17 @@ public class ItemController {
         return itemService.search(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("{id}/comment")
+    public ItemExtendedDto.CommentDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                 @PathVariable long id,
+                                                 @Validated(Create.class) @RequestBody CommentRequestDto commentDto) {
+        Comment comment = ItemMapper.toComment(id, userId, commentDto);
+        User author = userService.getById(userId);
+        List<Booking> authorBookings = bookingService.getAllByUserIdOrderByStartDesc(userId, State.PAST);
+
+        return ItemMapper.toCommentDto(itemService.addComment(comment, authorBookings), author);
     }
 
 }
