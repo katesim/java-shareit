@@ -55,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
     public Item update(Item item) {
         Item prevItem = getById(item.getId());
 
-        if (item.getOwnerId() != prevItem.getOwnerId()) {
+        if (!Objects.equals(item.getOwnerId(), prevItem.getOwnerId())) {
             throw new ForbiddenException("Изменение предмета доступно только владельцу");
         }
         if (item.getName() != null) {

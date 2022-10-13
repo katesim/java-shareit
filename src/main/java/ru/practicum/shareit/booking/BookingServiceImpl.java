@@ -127,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
 
         Item item = itemService.getById(booking.getItemId());
 
-        if (!userId.equals(booking.getBookerId()) & !userId.equals(item.getOwnerId())) {
+        if (!userId.equals(booking.getBookerId()) && !userId.equals(item.getOwnerId())) {
             throw new NotFoundException("Просмотр бронирования доступно только автору или владельцу");
         }
 
