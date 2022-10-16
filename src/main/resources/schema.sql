@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users
 (
   id     BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   name   varchar(255) NOT NULL,
-  email  varchar(512) NOT NULL,
+  email  varchar(64) NOT NULL,
   CONSTRAINT UQ_USER_EMAIL UNIQUE (email)
 );
 
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS bookings
   end_date    TIMESTAMP WITHOUT TIME ZONE,
   item_id     BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
   booker_id   BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  status      varchar(512) NOT NULL
+  status      varchar(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS comments
