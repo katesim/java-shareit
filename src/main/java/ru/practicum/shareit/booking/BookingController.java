@@ -5,9 +5,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.exception.ForbiddenException;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.markers.Create;
 
 import java.util.List;
@@ -24,15 +21,13 @@ public class BookingController {
 
     @GetMapping("{id}")
     public BookingResponseDto getById(@PathVariable long id,
-                                      @RequestHeader("X-Sharer-User-Id") long userId
-    ) throws NotFoundException, ForbiddenException {
+                                      @RequestHeader("X-Sharer-User-Id") long userId) {
         return bookingMapper.toBookingResponseDto(bookingService.getById(id, userId));
     }
 
     @GetMapping()
     public List<BookingResponseDto> getAllByUserId(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                                   @RequestHeader("X-Sharer-User-Id") long userId
-    ) throws NotFoundException, ForbiddenException {
+                                                   @RequestHeader("X-Sharer-User-Id") long userId) {
         State stateEnum;
         try {
             stateEnum = State.valueOf(state);
@@ -50,8 +45,7 @@ public class BookingController {
 
     @GetMapping("owner")
     public List<BookingResponseDto> getAllByOwnerId(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                                    @RequestHeader("X-Sharer-User-Id") long userId
-    ) throws NotFoundException, ForbiddenException {
+                                                    @RequestHeader("X-Sharer-User-Id") long userId) {
         State stateEnum;
         try {
             stateEnum = State.valueOf(state);
@@ -70,8 +64,7 @@ public class BookingController {
 
     @PostMapping
     public BookingResponseDto create(@RequestHeader("X-Sharer-User-Id") long userId,
-                                     @Validated(Create.class) @RequestBody BookingRequestDto bookingRequestDto)
-            throws ValidationException {
+                                     @Validated(Create.class) @RequestBody BookingRequestDto bookingRequestDto) {
         Booking booking = BookingMapper.toBooking(bookingRequestDto);
         booking.setStatus(Status.WAITING);
         booking.setBookerId(userId);
@@ -81,7 +74,7 @@ public class BookingController {
     @PatchMapping("{id}")
     public BookingResponseDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                                      @PathVariable long id,
-                                     @RequestParam() boolean approved) throws NotFoundException, ForbiddenException {
+                                     @RequestParam() boolean approved) {
         return bookingMapper.toBookingResponseDto(bookingService.updateStatus(id, userId, approved));
     }
 

@@ -7,8 +7,6 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.Status;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemExtendedDto;
@@ -60,7 +58,7 @@ public class ItemController {
 
     @GetMapping("{id}")
     public ItemExtendedDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                   @PathVariable long id) throws NotFoundException {
+                                   @PathVariable long id) {
         Item item = itemService.getById(id);
         ItemExtendedDto itemDto = ItemMapper.toItemExtendedDto(item);
         if (userId == item.getOwnerId()) {
@@ -86,7 +84,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
-                          @Validated(Create.class) @RequestBody ItemDto itemDto) throws ValidationException {
+                          @Validated(Create.class) @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto, userId, null);
         return ItemMapper.toItemDto(itemService.add(item));
     }
@@ -94,7 +92,7 @@ public class ItemController {
     @PatchMapping("{id}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                           @PathVariable long id,
-                          @RequestBody ItemDto itemDto) throws ValidationException {
+                          @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto, userId, null);
         item.setId(id);
         return ItemMapper.toItemDto(itemService.update(item));

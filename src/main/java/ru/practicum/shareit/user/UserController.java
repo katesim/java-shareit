@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.markers.Create;
 import ru.practicum.shareit.markers.Update;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -29,19 +27,19 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public UserDto getById(@PathVariable long id) throws NotFoundException {
+    public UserDto getById(@PathVariable long id) {
         return UserMapper.toUserDto(userService.getById(id));
     }
 
     @PostMapping
-    public UserDto create(@Validated(Create.class) @RequestBody UserDto userDto) throws ValidationException {
+    public UserDto create(@Validated(Create.class) @RequestBody UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         return UserMapper.toUserDto(userService.add(user));
     }
 
     @PatchMapping("{id}")
     public UserDto update(@PathVariable long id,
-                       @Validated(Update.class) @RequestBody UserDto userDto) throws ValidationException {
+                          @Validated(Update.class) @RequestBody UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         return UserMapper.toUserDto(userService.update(id, user));
     }
