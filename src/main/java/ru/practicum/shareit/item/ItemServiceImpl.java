@@ -10,7 +10,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
+    private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
-    private final UserService userService;
 
     @Override
     public List<Item> getAll() {
@@ -31,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId) {
-        userService.getById(ownerId);
+        checkUserExistence(ownerId);
         return itemRepository.getAllByOwnerIdOrderByIdAsc(ownerId);
     }
 
@@ -44,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Item add(Item item) {
-        userService.getById(item.getOwnerId());
+        checkUserExistence(item.getOwnerId());
         Item savedItem = itemRepository.save(item);
         log.info("Предмет с id={} создан", savedItem.getId());
         return savedItem;
@@ -110,5 +110,10 @@ public class ItemServiceImpl implements ItemService {
         return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
     }
 
+
+    private void checkUserExistence(Long userId) {
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь с id=" + userId + " несуществует"));
+    }
 
 }

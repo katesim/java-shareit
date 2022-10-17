@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
-    private final UserService userService;
-    private final ItemService itemService;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Override
     public List<Booking> getAll() {
@@ -32,7 +32,8 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getAllByUserIdOrderByStartDesc(Long userId, State state) {
         List<Booking> bookings;
         LocalDateTime dateTime = LocalDateTime.now();
-        userService.getById(userId);
+        checkUserExistence(userId);
+
         switch (state) {
             case ALL:
                 bookings = repository.findByBookerIdOrderByStartDesc(userId);
@@ -73,14 +74,14 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getAllByOwnerIdOrderByStartDesc(Long ownerId, State state) {
-        List<Long> ownerItems = itemService.getAllByOwnerIdOrderByIdAsc(ownerId)
+        List<Long> ownerItems = itemRepository.getAllByOwnerIdOrderByIdAsc(ownerId)
                 .stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
 
         List<Booking> bookings;
         LocalDateTime dateTime = LocalDateTime.now();
-        userService.getById(ownerId);
+        checkUserExistence(ownerId);
 
         switch (state) {
             case ALL:
@@ -125,7 +126,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = repository.findById(id).orElseThrow(() ->
                 new NotFoundException("Бронирование с id=" + id + " несуществует"));
 
-        Item item = itemService.getById(booking.getItemId());
+        Item item = getItem(booking.getItemId());
 
         if (!userId.equals(booking.getBookerId()) && !userId.equals(item.getOwnerId())) {
             throw new NotFoundException("Просмотр бронирования доступно только автору или владельцу");
@@ -173,7 +174,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking add(Booking booking, Long userId) {
-        Item item = itemService.getById(booking.getItemId());
+        Item item = getItem(booking.getItemId());
         LocalDateTime currDatetime = LocalDateTime.now();
         if (!item.getAvailable()) {
             throw new ValidationException("Предмет с id=" + booking.getItemId() + " недоступен для бронирования");
@@ -189,7 +190,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Недопустимое время брони");
         }
 
-        userService.getById(booking.getBookerId());
+        checkUserExistence(booking.getBookerId());
         booking.setStatus(Status.WAITING);
 
         Booking savedBooking = repository.save(booking);
@@ -202,7 +203,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public Booking updateStatus(Long id, Long userId, boolean approved) {
         Booking prevBooking = getById(id, userId);
-        Item item = itemService.getById(prevBooking.getItemId());
+        Item item = getItem(prevBooking.getItemId());
 
         if (!userId.equals(item.getOwnerId())) {
             throw new NotFoundException("Изменение статуса бронирования доступно только владельцу");
@@ -218,6 +219,16 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = repository.save(prevBooking);
         log.info("Статус бронирования с id={} обновлен на {}", prevBooking.getId(), prevBooking.getStatus());
         return booking;
+    }
+
+    private void checkUserExistence(Long userId) {
+        userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Пользователь с id=" + userId + " несуществует"));
+    }
+
+    private Item getItem(Long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() ->
+                new NotFoundException("Предмет с id=" + itemId + " несуществует"));
     }
 
 }
