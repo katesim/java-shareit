@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
@@ -7,15 +9,20 @@ import java.util.List;
 public interface ItemService {
     List<Item> getAll();
 
-    Item getById(long id);
+    Item getById(Long id);
 
-    List<Item> getAllByOwner(long owner);
+    List<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId);
 
     Item add(Item item);
 
     Item update(Item item);
 
-    void delete(long id);
+    void delete(Long id);
 
     List<Item> search(String text);
+
+    Comment addComment(Comment comment, List<Booking> authorBookings);
+
+    List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId);
+
 }
