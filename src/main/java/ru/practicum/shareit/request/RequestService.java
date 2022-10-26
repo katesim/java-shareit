@@ -18,6 +18,6 @@ public interface RequestService {
 
     void delete(Long userId, Long id);
 
-    Page<ItemRequest> getExistedForUserId(Long userId, String from, String size);
+    Page<ItemRequest> getExistedForUserId(Long userId, int from, int size);
 
 }

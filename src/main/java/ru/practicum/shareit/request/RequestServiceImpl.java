@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -71,14 +72,10 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Page<ItemRequest> getExistedForUserId(Long userId, String from, String size) {
+    public Page<ItemRequest> getExistedForUserId(Long userId, int from, int size) {
         checkUserExistence(userId);
-        if (from.isBlank() || size.isBlank()) {
-            return null;
-        }
-        int pageSize = Integer.parseInt(size);
-        int start = Integer.parseInt(from) % pageSize;
-        Pageable pageable = PageRequest.of(start, pageSize);
+
+        Pageable pageable = PageRequest.of(from % size, size);
         return requestRepository.getAllByRequestorIdNotOrderByCreatedAsc(userId, pageable);
     }
 

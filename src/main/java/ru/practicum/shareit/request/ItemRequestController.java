@@ -12,6 +12,7 @@ import ru.practicum.shareit.request.dto.ItemRequesExtendedtDto;
 import ru.practicum.shareit.request.dto.ItemRequestDescriptionDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,8 +56,8 @@ public class ItemRequestController {
 
     @GetMapping("all")
     public List<ItemRequestDto> getAllExisted(@RequestHeader("X-Sharer-User-Id") long userId,
-                                              @RequestParam String from,
-                                              @RequestParam String size) {
+                                              @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                              @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
         Page<ItemRequest> requests = requestService.getExistedForUserId(userId, from, size);
 
         return requests.stream().map(ItemRequestMapper::toItemRequestDto).collect(Collectors.toList());
