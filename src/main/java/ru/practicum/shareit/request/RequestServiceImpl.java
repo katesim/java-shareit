@@ -75,7 +75,7 @@ public class RequestServiceImpl implements RequestService {
     public Page<ItemRequest> getExistedForUserId(Long userId, int from, int size) {
         checkUserExistence(userId);
 
-        Pageable pageable = PageRequest.of(from % size, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         return requestRepository.getAllByRequestorIdNotOrderByCreatedAsc(userId, pageable);
     }
 

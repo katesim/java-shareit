@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.springframework.data.domain.Page;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -11,7 +12,7 @@ public interface ItemService {
 
     Item getById(Long id);
 
-    List<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId);
+    Page<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId, int from, int size);
 
     Item add(Item item);
 
@@ -19,7 +20,7 @@ public interface ItemService {
 
     void delete(Long id);
 
-    List<Item> search(String text);
+    Page<Item> search(String text, int from, int size);
 
     Comment addComment(Comment comment, List<Booking> authorBookings);
 
