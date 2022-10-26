@@ -110,6 +110,11 @@ public class ItemServiceImpl implements ItemService {
         return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
     }
 
+    @Override
+    public List<Item> getAllByRequestIdOrderByIdAsc(Long requestId) {
+        return itemRepository.getAllByRequestIdOrderByIdAsc(requestId);
+    }
+
 
     private void checkUserExistence(Long userId) {
         userRepository.findById(userId).orElseThrow(() ->

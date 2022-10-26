@@ -25,4 +25,6 @@ public interface ItemService {
 
     List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId);
 
+    List<Item> getAllByRequestIdOrderByIdAsc(Long requestId);
+
 }
