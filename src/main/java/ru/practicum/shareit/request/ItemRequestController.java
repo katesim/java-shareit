@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.ItemService;
@@ -13,6 +14,7 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -30,8 +32,9 @@ public class ItemRequestController {
     }
 
     @GetMapping("{id}")
-    public ItemRequesExtendedtDto getById(@PathVariable long id) {
-        ItemRequest request = requestService.getById(id);
+    public ItemRequesExtendedtDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+                                          @PathVariable long id) {
+        ItemRequest request = requestService.getById(userId, id);
         List<Item> responses = itemService.getAllByRequestIdOrderByIdAsc(id);
         return ItemRequestMapper.toItemRequestExtendedtDto(request, responses);
     }
@@ -40,7 +43,7 @@ public class ItemRequestController {
     public List<ItemRequesExtendedtDto> getAllByRequestor(@RequestHeader("X-Sharer-User-Id") long userId) {
         List<ItemRequest> requests = requestService.getAllByRequestorId(userId);
         List<ItemRequesExtendedtDto> requestsDto = new ArrayList<>();
-        for (ItemRequest request: requests) {
+        for (ItemRequest request : requests) {
             List<Item> items = itemService.getAllByRequestIdOrderByIdAsc(request.getId());
             ItemRequesExtendedtDto requestDto = ItemRequestMapper.toItemRequestExtendedtDto(request, items);
             requestsDto.add(requestDto);
@@ -54,7 +57,9 @@ public class ItemRequestController {
     public List<ItemRequestDto> getAllExisted(@RequestHeader("X-Sharer-User-Id") long userId,
                                               @RequestParam String from,
                                               @RequestParam String size) {
-        return null;
+        Page<ItemRequest> requests = requestService.getExistedForUserId(userId, from, size);
+
+        return requests.stream().map(ItemRequestMapper::toItemRequestDto).collect(Collectors.toList());
     }
 
 

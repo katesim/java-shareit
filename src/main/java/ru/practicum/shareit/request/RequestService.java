@@ -10,14 +10,14 @@ public interface RequestService {
 
     List<ItemRequest> getAllByRequestorId(Long requestorId);
 
-    ItemRequest getById(Long id);
+    ItemRequest getById(Long userId, Long id);
 
     ItemRequest add(ItemRequest itemRequest);
 
-    ItemRequest update(ItemRequest itemRequest);
+    ItemRequest update(Long userId, ItemRequest itemRequest);
 
-    void delete(Long id);
+    void delete(Long userId, Long id);
 
-    Page<Item> getExistedForUserId(Long userId, Pageable pageable);
+    Page<ItemRequest> getExistedForUserId(Long userId, String from, String size);
 
 }

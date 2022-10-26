@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ItemRequest getById(Long id) {
+    public ItemRequest getById(Long userId, Long id) {
+        checkUserExistence(userId);
         return requestRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Запрос с id=" + id + " несуществует"));
     }
@@ -45,8 +47,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public ItemRequest update(ItemRequest request) {
-        ItemRequest prevRequest = getById(request.getId());
+    public ItemRequest update(Long userId, ItemRequest request) {
+        ItemRequest prevRequest = getById(userId, request.getId());
 
         if (!Objects.equals(request.getRequestorId(), prevRequest.getRequestorId())) {
             throw new ForbiddenException("Изменение запроса доступно только владельцу");
@@ -62,15 +64,22 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
-        ItemRequest request = getById(id);
+    public void delete(Long userId, Long id) {
+        ItemRequest request = getById(userId, id);
         requestRepository.delete(request);
         log.info("Запрос с id={} удален", id);
     }
 
     @Override
-    public Page<Item> getExistedForUserId(Long userId, Pageable pageable) {
-        return null;
+    public Page<ItemRequest> getExistedForUserId(Long userId, String from, String size) {
+        checkUserExistence(userId);
+        if (from.isBlank() || size.isBlank()) {
+            return null;
+        }
+        int pageSize = Integer.parseInt(size);
+        int start = Integer.parseInt(from) % pageSize;
+        Pageable pageable = PageRequest.of(start, pageSize);
+        return requestRepository.getAllByRequestorIdNotOrderByCreatedAsc(userId, pageable);
     }
 
     private void checkUserExistence(Long userId) {
