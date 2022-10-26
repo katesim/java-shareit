@@ -1,8 +1,6 @@
 package ru.practicum.shareit.request;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
