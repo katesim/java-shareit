@@ -43,7 +43,7 @@ class ItemControllerTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final ItemMapper itemMapper = new ItemMapper();
 
-    private final String USER_ID_HEADER = "X-Sharer-User-Id";
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     private final User user = new User(1L, "user1", "user1@user.ru");
     private final Item item = new Item(1L, "item1", "description1",
