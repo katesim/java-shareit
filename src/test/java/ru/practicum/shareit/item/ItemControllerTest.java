@@ -56,14 +56,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.item.CommentTestUtils.getDefaultComment;
+import static ru.practicum.shareit.item.ItemTestUtils.generateItems;
+import static ru.practicum.shareit.item.ItemTestUtils.getDefaultItem;
+import static ru.practicum.shareit.user.UserTestUtils.getDefaultUser;
 
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     private static final long USER_ID = 1L;
-    private static final long ITEM_ID = 1L;
-    private static final long COMMENT_ID = 1L;
     private static final int PAGE_START_FROM = 0;
     private static final int PAGE_SIZE_DEFAULT = 10;
     private static final int PAGE_SIZE_CUSTOM = 2;
@@ -113,29 +115,6 @@ class ItemControllerTest {
                 return EnumSet.noneOf(Option.class);
             }
         });
-    }
-
-    private Item getDefaultItem() {
-        return new Item(ITEM_ID, "item1", "description1", true, USER_ID, 1L);
-    }
-
-    private Comment getDefaultComment() {
-        return new Comment(COMMENT_ID, "comment", ITEM_ID, USER_ID, null);
-    }
-
-    private User getDefaultUser() {
-        return new User(USER_ID, "user1", "user1@user.ru");
-    }
-
-    private List<Item> generateItems(final int count) {
-        List<Item> items = new ArrayList<>();
-
-        for (long i = 0; i < count; i++) {
-            final Item item = new Item(i, "item" + i, "description" + i, true, USER_ID, i);
-            items.add(item);
-        }
-
-        return items;
     }
 
     private void assertItemAtIndex(final String response, final List<Item> items, final int index) {
