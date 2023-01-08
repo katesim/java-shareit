@@ -109,7 +109,7 @@ public class ItemController {
     }
 
     @GetMapping("search")
-    public List<ItemDto> getAll(@RequestParam String text,
+    public List<ItemDto> search(@RequestParam String text,
                                 @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
                                 @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
         return itemService.search(text, from, size).stream()
@@ -117,16 +117,15 @@ public class ItemController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("{id}/comment")
+    @PostMapping("{itemId}/comment")
     public ItemExtendedDto.CommentDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @PathVariable long id,
+                                                 @PathVariable long itemId,
                                                  @Validated(Create.class) @RequestBody CommentRequestDto commentDto) {
-        Comment comment = ItemMapper.toComment(id, userId, commentDto);
+        Comment comment = ItemMapper.toComment(itemId, userId, commentDto);
         User author = userService.getById(userId);
         List<Booking> authorBookings = bookingService.getAllByUserIdOrderByStartDesc(
                 userId, State.PAST, 0, Integer.MAX_VALUE).toList();
 
         return ItemMapper.toCommentDto(itemService.addComment(comment, authorBookings), author);
     }
-
 }

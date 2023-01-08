@@ -59,6 +59,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+
+    private static final long USER_ID = 1L;
+    private static final long ITEM_ID = 1L;
+    private static final long COMMENT_ID = 1L;
+    private static final int PAGE_START_FROM = 0;
+    private static final int PAGE_SIZE_DEFAULT = 10;
+    private static final int PAGE_SIZE_CUSTOM = 2;
+
     @Mock
     private ItemService itemService;
     @Mock
@@ -70,15 +79,6 @@ class ItemControllerTest {
 
     private MockMvc mockMvc;
     private final ObjectMapper mapper = new ObjectMapper();
-
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
-
-    private static final long USER_ID = 1L;
-    private static final long ITEM_ID = 1L;
-    private static final long COMMENT_ID = 1L;
-    private static final int PAGE_START_FROM = 0;
-    private static final int PAGE_SIZE_DEFAULT = 10;
-    private static final int PAGE_SIZE_CUSTOM = 2;
 
     @BeforeEach
     void beforeEach() {
