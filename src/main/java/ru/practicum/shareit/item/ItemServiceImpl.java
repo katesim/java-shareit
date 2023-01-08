@@ -28,6 +28,12 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    public Item getById(Long id) {
+        return itemRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Предмет с id=" + id + " несуществует"));
+    }
+
+    @Override
     public List<Item> getAll() {
         return itemRepository.findAll();
     }
@@ -40,9 +46,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getById(Long id) {
-        return itemRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Предмет с id=" + id + " несуществует"));
+    public List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId) {
+        return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
+    }
+
+    @Override
+    public List<Item> getAllByRequestIdOrderByIdAsc(Long requestId) {
+        return itemRepository.getAllByRequestIdOrderByIdAsc(requestId);
     }
 
     @Override
@@ -99,24 +109,15 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Comment addComment(Comment comment, List<Booking> authorBookings) {
-        List<Long> itemsIds = authorBookings.stream().map(Booking::getItemId).collect(Collectors.toList());
+        Set<Long> itemsIds = authorBookings.stream()
+                .map(Booking::getItemId)
+                .collect(Collectors.toSet());
         if (!itemsIds.contains(comment.getItemId())) {
             throw new ValidationException("Вы не бронировали данный предмет");
         }
 
         return commentRepository.save(comment);
     }
-
-    @Override
-    public List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId) {
-        return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
-    }
-
-    @Override
-    public List<Item> getAllByRequestIdOrderByIdAsc(Long requestId) {
-        return itemRepository.getAllByRequestIdOrderByIdAsc(requestId);
-    }
-
 
     private void checkUserExistence(Long userId) {
         userRepository.findById(userId).orElseThrow(() ->
