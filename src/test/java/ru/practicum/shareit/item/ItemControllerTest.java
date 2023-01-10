@@ -3,25 +3,20 @@ package ru.practicum.shareit.item;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.Option;
-import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
-import com.jayway.jsonpath.spi.json.JsonProvider;
-import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
-import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.State;
@@ -36,9 +31,7 @@ import ru.practicum.shareit.user.model.User;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,7 +53,9 @@ import static ru.practicum.shareit.item.CommentTestUtils.getDefaultComment;
 import static ru.practicum.shareit.item.ItemTestUtils.generateItems;
 import static ru.practicum.shareit.item.ItemTestUtils.getDefaultItem;
 import static ru.practicum.shareit.user.UserTestUtils.getDefaultUser;
+import static ru.practicum.shareit.utils.JsonTestUtils.configJsonProvider;
 
+@WebMvcTest(controllers = ItemController.class)
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
@@ -70,51 +65,25 @@ class ItemControllerTest {
     private static final int PAGE_SIZE_DEFAULT = 10;
     private static final int PAGE_SIZE_CUSTOM = 2;
 
-    @Mock
+    @MockBean
     private ItemService itemService;
-    @Mock
+    @MockBean
     private BookingService bookingService;
-    @Mock
+    @MockBean
     private UserService userService;
     @InjectMocks
     private ItemController itemController;
 
+    @Autowired
     private MockMvc mockMvc;
     private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void beforeEach() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(itemController)
-                .build();
         mapper.registerModule(new JavaTimeModule());
         mapper.enable(DeserializationFeature.USE_LONG_FOR_INTS);
 
         configJsonProvider(mapper);
-    }
-
-    private void configJsonProvider(ObjectMapper objectMapper) {
-
-        Configuration.setDefaults(new Configuration.Defaults() {
-
-            private final JsonProvider jsonProvider = new JacksonJsonProvider(objectMapper);
-            private final MappingProvider mappingProvider = new JacksonMappingProvider(objectMapper);
-
-            @Override
-            public JsonProvider jsonProvider() {
-                return jsonProvider;
-            }
-
-            @Override
-            public MappingProvider mappingProvider() {
-                return mappingProvider;
-            }
-
-            @Override
-            public Set<Option> options() {
-                return EnumSet.noneOf(Option.class);
-            }
-        });
     }
 
     private void assertItemAtIndex(final String response, final List<Item> items, final int index) {
