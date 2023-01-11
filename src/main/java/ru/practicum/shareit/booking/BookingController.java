@@ -20,7 +20,6 @@ public class BookingController {
     private final BookingService bookingService;
     private final BookingMapper bookingMapper;
 
-
     @GetMapping("{id}")
     public BookingResponseDto getById(@PathVariable long id,
                                       @RequestHeader("X-Sharer-User-Id") long userId) {
@@ -65,7 +64,6 @@ public class BookingController {
             throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
         }
 
-
         return bookingService.getAllByOwnerIdOrderByStartDesc(
                         userId,
                         stateEnum,
@@ -91,5 +89,4 @@ public class BookingController {
                                      @RequestParam() boolean approved) {
         return bookingMapper.toBookingResponseDto(bookingService.updateStatus(id, userId, approved));
     }
-
 }
