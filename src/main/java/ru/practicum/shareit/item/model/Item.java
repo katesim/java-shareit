@@ -5,10 +5,13 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
+@Builder(toBuilder = true)
 @Table(name = "items", schema = "public")
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

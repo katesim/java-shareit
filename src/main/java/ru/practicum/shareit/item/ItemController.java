@@ -16,6 +16,7 @@ import ru.practicum.shareit.markers.Create;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.Min;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,16 +24,20 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 public class ItemController {
     private final ItemService itemService;
     private final BookingService bookingService;
     private final UserService userService;
 
     @GetMapping
-    public List<ItemExtendedDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemExtendedDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId,
+                                        @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                        @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+
         List<ItemExtendedDto> ownersItemsWithBookingsDto = new ArrayList<>();
 
-        for (Item item : itemService.getAllByOwnerIdOrderByIdAsc(userId)) {
+        for (Item item : itemService.getAllByOwnerIdOrderByIdAsc(userId, from, size)) {
             ItemExtendedDto itemDto = ItemMapper.toItemExtendedDto(item);
 
             Booking next = bookingService.getNextBookingByItemId(itemDto.getId(), Status.APPROVED);
@@ -85,7 +90,7 @@ public class ItemController {
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                           @Validated(Create.class) @RequestBody ItemDto itemDto) {
-        Item item = ItemMapper.toItem(itemDto, userId, null);
+        Item item = ItemMapper.toItem(itemDto, userId);
         return ItemMapper.toItemDto(itemService.add(item));
     }
 
@@ -93,7 +98,7 @@ public class ItemController {
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                           @PathVariable long id,
                           @RequestBody ItemDto itemDto) {
-        Item item = ItemMapper.toItem(itemDto, userId, null);
+        Item item = ItemMapper.toItem(itemDto, userId);
         item.setId(id);
         return ItemMapper.toItemDto(itemService.update(item));
     }
@@ -104,21 +109,23 @@ public class ItemController {
     }
 
     @GetMapping("search")
-    public List<ItemDto> getAll(@RequestParam String text) {
-        return itemService.search(text).stream()
+    public List<ItemDto> search(@RequestParam String text,
+                                @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+        return itemService.search(text, from, size).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("{id}/comment")
+    @PostMapping("{itemId}/comment")
     public ItemExtendedDto.CommentDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @PathVariable long id,
+                                                 @PathVariable long itemId,
                                                  @Validated(Create.class) @RequestBody CommentRequestDto commentDto) {
-        Comment comment = ItemMapper.toComment(id, userId, commentDto);
+        Comment comment = ItemMapper.toComment(itemId, userId, commentDto);
         User author = userService.getById(userId);
-        List<Booking> authorBookings = bookingService.getAllByUserIdOrderByStartDesc(userId, State.PAST);
+        List<Booking> authorBookings = bookingService.getAllByUserIdOrderByStartDesc(
+                userId, State.PAST, 0, Integer.MAX_VALUE).toList();
 
         return ItemMapper.toCommentDto(itemService.addComment(comment, authorBookings), author);
     }
-
 }

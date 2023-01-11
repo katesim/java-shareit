@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.markers.Create;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,10 +15,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
     private final BookingService bookingService;
     private final BookingMapper bookingMapper;
-
 
     @GetMapping("{id}")
     public BookingResponseDto getById(@PathVariable long id,
@@ -26,8 +27,12 @@ public class BookingController {
     }
 
     @GetMapping()
-    public List<BookingResponseDto> getAllByUserId(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                                   @RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<BookingResponseDto> getAllByUserId(
+            @RequestParam(defaultValue = "ALL", required = false) String state,
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+            @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+
         State stateEnum;
         try {
             stateEnum = State.valueOf(state);
@@ -37,15 +42,21 @@ public class BookingController {
 
         return bookingService.getAllByUserIdOrderByStartDesc(
                         userId,
-                        stateEnum)
+                        stateEnum,
+                        from,
+                        size)
                 .stream()
                 .map(bookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("owner")
-    public List<BookingResponseDto> getAllByOwnerId(@RequestParam(defaultValue = "ALL", required = false) String state,
-                                                    @RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<BookingResponseDto> getAllByOwnerId(
+            @RequestParam(defaultValue = "ALL", required = false) String state,
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+            @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+
         State stateEnum;
         try {
             stateEnum = State.valueOf(state);
@@ -53,10 +64,11 @@ public class BookingController {
             throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
         }
 
-
         return bookingService.getAllByOwnerIdOrderByStartDesc(
                         userId,
-                        stateEnum)
+                        stateEnum,
+                        from,
+                        size)
                 .stream()
                 .map(bookingMapper::toBookingResponseDto)
                 .collect(Collectors.toList());
@@ -77,5 +89,4 @@ public class BookingController {
                                      @RequestParam() boolean approved) {
         return bookingMapper.toBookingResponseDto(bookingService.updateStatus(id, userId, approved));
     }
-
 }
