@@ -26,7 +26,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -166,7 +165,7 @@ class BookingControllerTest {
                 .status(booking.getStatus())
                 .build();
 
-        when(bookingService.add(any(Booking.class), eq(user.getId()))).thenReturn(booking);
+        when(bookingService.add(any(Booking.class))).thenReturn(booking);
         when(userService.getById(user.getId())).thenReturn(user);
         when(itemService.getById(item.getId())).thenReturn(item);
 
@@ -188,7 +187,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.booker.name", is(user.getName())));
 
         verify(bookingService, times(1))
-                .add(any(Booking.class), eq(user.getId()));
+                .add(any(Booking.class));
         verify(itemService, times(1)).getById(item.getId());
         verify(userService, times(1)).getById(user.getId());
     }

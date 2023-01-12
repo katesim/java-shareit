@@ -19,7 +19,7 @@ public interface BookingService {
 
     Page<Booking> getAllByOwnerIdOrderByStartDesc(Long ownerId, State state, int from, int size);
 
-    Booking add(Booking booking, Long userId);
+    Booking add(Booking booking);
 
     Booking updateStatus(Long id, Long userId, boolean approved);
 

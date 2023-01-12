@@ -78,9 +78,8 @@ public class BookingController {
     public BookingResponseDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                                      @Validated(Create.class) @RequestBody BookingRequestDto bookingRequestDto) {
         Booking booking = BookingMapper.toBooking(bookingRequestDto);
-        booking.setStatus(Status.WAITING);
         booking.setBookerId(userId);
-        return bookingMapper.toBookingResponseDto(bookingService.add(booking, userId));
+        return bookingMapper.toBookingResponseDto(bookingService.add(booking));
     }
 
     @PatchMapping("{id}")

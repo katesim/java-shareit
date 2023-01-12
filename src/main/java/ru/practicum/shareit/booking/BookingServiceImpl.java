@@ -83,15 +83,16 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Page<Booking> getAllByOwnerIdOrderByStartDesc(Long ownerId, State state, int from, int size) {
-        Pageable pageable = PageRequest.of(from / size, size);
+        checkUserExistence(ownerId);
+
         List<Long> ownerItems = itemRepository.getAllByOwnerIdOrderByIdAsc(ownerId, PageRequest.of(0, Integer.MAX_VALUE))
                 .stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
 
-        Page<Booking> bookings;
+        Pageable pageable = PageRequest.of(from / size, size);
         LocalDateTime dateTime = LocalDateTime.now();
-        checkUserExistence(ownerId);
+        Page<Booking> bookings;
 
         switch (state) {
             case ALL:
@@ -188,14 +189,15 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public Booking add(Booking booking, Long userId) {
+    public Booking add(Booking booking) {
         Item item = getItem(booking.getItemId());
         LocalDateTime currDatetime = LocalDateTime.now();
         if (!item.getAvailable()) {
             throw new ValidationException("Предмет с id=" + booking.getItemId() + " недоступен для бронирования");
         }
 
-        if (userId.equals(item.getOwnerId())) {
+        checkUserExistence(booking.getBookerId());
+        if (booking.getBookerId().equals(item.getOwnerId())) {
             throw new NotFoundException("Владелец не может бронировать собственный предмет");
         }
 
@@ -205,9 +207,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Недопустимое время брони");
         }
 
-        checkUserExistence(booking.getBookerId());
         booking.setStatus(Status.WAITING);
-
         Booking savedBooking = repository.save(booking);
         log.info("Бронирование с id={} создано", savedBooking.getId());
 
