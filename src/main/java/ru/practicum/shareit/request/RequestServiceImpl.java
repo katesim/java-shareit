@@ -23,9 +23,9 @@ public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
 
     @Override
-    public List<ItemRequest> getAllByRequestorId(Long requestorId) {
-        checkUserExistence(requestorId);
-        return requestRepository.getAllByRequestorIdOrderByCreatedAsc(requestorId);
+    public List<ItemRequest> getAllByRequesterId(Long requesterId) {
+        checkUserExistence(requesterId);
+        return requestRepository.getAllByRequestorIdOrderByCreatedAsc(requesterId);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ItemRequest add(ItemRequest request) {
-        checkUserExistence(request.getRequestorId());
+        checkUserExistence(request.getRequesterId());
         ItemRequest savedRequest = requestRepository.save(request);
         log.info("Запрос с id={} создан", savedRequest.getId());
         return savedRequest;
@@ -49,7 +49,7 @@ public class RequestServiceImpl implements RequestService {
     public ItemRequest update(Long userId, ItemRequest request) {
         ItemRequest prevRequest = getById(userId, request.getId());
 
-        if (!Objects.equals(request.getRequestorId(), prevRequest.getRequestorId())) {
+        if (!Objects.equals(request.getRequesterId(), prevRequest.getRequesterId())) {
             throw new ForbiddenException("Изменение запроса доступно только владельцу");
         }
         if (request.getDescription() != null) {

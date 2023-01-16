@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request;
 
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.dto.ItemRequesExtendedtDto;
+import ru.practicum.shareit.request.dto.ItemRequestExtendedDto;
 import ru.practicum.shareit.request.dto.ItemRequestDescriptionDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
@@ -19,8 +19,8 @@ public class ItemRequestMapper {
         );
     }
 
-    public static ItemRequesExtendedtDto toItemRequestExtendedtDto(ItemRequest request, List<Item> items) {
-        return new ItemRequesExtendedtDto(
+    public static ItemRequestExtendedDto toItemRequestExtendedDto(ItemRequest request, List<Item> items) {
+        return new ItemRequestExtendedDto(
                 request.getId(),
                 request.getDescription(),
                 request.getCreated().toString(),
@@ -28,8 +28,8 @@ public class ItemRequestMapper {
         );
     }
 
-    private static ItemRequesExtendedtDto.ItemDto toItemDto(Item item) {
-        return new ItemRequesExtendedtDto.ItemDto(
+    private static ItemRequestExtendedDto.ItemDto toItemDto(Item item) {
+        return new ItemRequestExtendedDto.ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -40,7 +40,7 @@ public class ItemRequestMapper {
 
     public static ItemRequest toItemRequest(ItemRequestDescriptionDto descriptionDto, Long requesterId) {
         ItemRequest request = new ItemRequest();
-        request.setRequestorId(requesterId);
+        request.setRequesterId(requesterId);
         request.setDescription(descriptionDto.getDescription());
         request.setCreated(LocalDateTime.now());
         return request;
@@ -48,7 +48,7 @@ public class ItemRequestMapper {
 
     public static ItemRequest toItemRequest(ItemRequestDto requestDto, Long requesterId) {
         ItemRequest request = new ItemRequest();
-        request.setRequestorId(requesterId);
+        request.setRequesterId(requesterId);
         request.setDescription(requestDto.getDescription());
         request.setCreated(LocalDateTime.now());
         return request;

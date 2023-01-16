@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface RequestService {
 
-    List<ItemRequest> getAllByRequestorId(Long requestorId);
+    List<ItemRequest> getAllByRequesterId(Long requesterId);
 
     ItemRequest getById(Long userId, Long id);
 

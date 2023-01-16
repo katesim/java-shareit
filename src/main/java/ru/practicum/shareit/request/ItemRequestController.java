@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.markers.Create;
-import ru.practicum.shareit.request.dto.ItemRequesExtendedtDto;
+import ru.practicum.shareit.request.dto.ItemRequestExtendedDto;
 import ru.practicum.shareit.request.dto.ItemRequestDescriptionDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
@@ -32,20 +32,20 @@ public class ItemRequestController {
     }
 
     @GetMapping("{id}")
-    public ItemRequesExtendedtDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemRequestExtendedDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
                                           @PathVariable long id) {
         ItemRequest request = requestService.getById(userId, id);
         List<Item> responses = itemService.getAllByRequestIdOrderByIdAsc(id);
-        return ItemRequestMapper.toItemRequestExtendedtDto(request, responses);
+        return ItemRequestMapper.toItemRequestExtendedDto(request, responses);
     }
 
     @GetMapping()
-    public List<ItemRequesExtendedtDto> getAllByRequestor(@RequestHeader("X-Sharer-User-Id") long userId) {
-        List<ItemRequest> requests = requestService.getAllByRequestorId(userId);
-        List<ItemRequesExtendedtDto> requestsDto = new ArrayList<>();
+    public List<ItemRequestExtendedDto> getAllByRequester(@RequestHeader("X-Sharer-User-Id") long userId) {
+        List<ItemRequest> requests = requestService.getAllByRequesterId(userId);
+        List<ItemRequestExtendedDto> requestsDto = new ArrayList<>();
         for (ItemRequest request : requests) {
             List<Item> items = itemService.getAllByRequestIdOrderByIdAsc(request.getId());
-            ItemRequesExtendedtDto requestDto = ItemRequestMapper.toItemRequestExtendedtDto(request, items);
+            ItemRequestExtendedDto requestDto = ItemRequestMapper.toItemRequestExtendedDto(request, items);
             requestsDto.add(requestDto);
         }
         return requestsDto;
@@ -54,17 +54,17 @@ public class ItemRequestController {
     }
 
     @GetMapping("all")
-    public List<ItemRequesExtendedtDto> getAllExisted(
+    public List<ItemRequestExtendedDto> getAllExisted(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
             @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
 
         Page<ItemRequest> requests = requestService.getExistedForUserId(userId, from, size);
 
-        List<ItemRequesExtendedtDto> requestsDto = new ArrayList<>();
+        List<ItemRequestExtendedDto> requestsDto = new ArrayList<>();
         for (ItemRequest request : requests) {
             List<Item> items = itemService.getAllByRequestIdOrderByIdAsc(request.getId());
-            ItemRequesExtendedtDto requestDto = ItemRequestMapper.toItemRequestExtendedtDto(request, items);
+            ItemRequestExtendedDto requestDto = ItemRequestMapper.toItemRequestExtendedDto(request, items);
             requestsDto.add(requestDto);
         }
         return requestsDto;

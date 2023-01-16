@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
-public class ItemRequesExtendedtDto {
+public class ItemRequestExtendedDto {
     private Long id;
     @NotBlank()
     private String description;
