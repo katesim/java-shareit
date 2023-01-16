@@ -53,7 +53,7 @@ class ItemRequestControllerTest {
     @MockBean
     private ItemService itemService;
     @MockBean
-    private RequestService requestService;
+    private ItemRequestService itemRequestService;
     @InjectMocks
     private ItemRequestController itemRequestController;
 
@@ -76,7 +76,7 @@ class ItemRequestControllerTest {
                 .description(itemRequest.getDescription())
                 .build();
 
-        when(requestService.add(any(ItemRequest.class))).thenReturn(itemRequest);
+        when(itemRequestService.add(any(ItemRequest.class))).thenReturn(itemRequest);
 
         mockMvc.perform(post(REQUESTS_ENDPOINT)
                         .header(USER_ID_HEADER, USER_ID)
@@ -89,9 +89,9 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.description", is(itemRequest.getDescription())))
                 .andExpect(jsonPath("$.created", is(itemRequest.getCreated().toString())));
 
-        verify(requestService, times(1))
+        verify(itemRequestService, times(1))
                 .add(any(ItemRequest.class));
-        verifyNoMoreInteractions(requestService);
+        verifyNoMoreInteractions(itemRequestService);
     }
 
     @Test
@@ -99,7 +99,7 @@ class ItemRequestControllerTest {
         List<Item> items = generateItems(10);
         ItemRequest itemRequest = getDefaultRequest();
 
-        when(requestService.getById(USER_ID, itemRequest.getId())).thenReturn(itemRequest);
+        when(itemRequestService.getById(USER_ID, itemRequest.getId())).thenReturn(itemRequest);
         when(itemService.getAllByRequestIdOrderByIdAsc(itemRequest.getId())).thenReturn(items);
 
         MvcResult result = mockMvc.perform(get(REQUESTS_ENDPOINT + itemRequest.getId())
@@ -116,11 +116,11 @@ class ItemRequestControllerTest {
             assertItemAtIndex(response, items, index);
         }
 
-        verify(requestService, times(1))
+        verify(itemRequestService, times(1))
                 .getById(USER_ID, itemRequest.getId());
         verify(itemService, times(1))
                 .getAllByRequestIdOrderByIdAsc(itemRequest.getId());
-        verifyNoMoreInteractions(requestService);
+        verifyNoMoreInteractions(itemRequestService);
         verifyNoMoreInteractions(itemService);
     }
 
@@ -128,7 +128,7 @@ class ItemRequestControllerTest {
     void getAllByRequester() throws Exception {
         List<Item> items = generateItems(10);
         List<ItemRequest> itemRequests = generateRequests(10);
-        when(requestService.getAllByRequesterId(USER_ID)).thenReturn(itemRequests);
+        when(itemRequestService.getAllByRequesterId(USER_ID)).thenReturn(itemRequests);
         when(itemService.getAllByRequestIdOrderByIdAsc(anyLong())).thenReturn(items);
 
         MvcResult result = mockMvc.perform(get(REQUESTS_ENDPOINT)
@@ -141,11 +141,11 @@ class ItemRequestControllerTest {
             assertItemRequestAtIndex(response, itemRequests, items, index);
         }
 
-        verify(requestService, times(1))
+        verify(itemRequestService, times(1))
                 .getAllByRequesterId(USER_ID);
         verify(itemService, times(itemRequests.size()))
                 .getAllByRequestIdOrderByIdAsc(anyLong());
-        verifyNoMoreInteractions(requestService);
+        verifyNoMoreInteractions(itemRequestService);
         verifyNoMoreInteractions(itemService);
     }
 
@@ -153,7 +153,7 @@ class ItemRequestControllerTest {
     void getAllExisted() throws Exception {
         List<Item> items = generateItems(3);
         List<ItemRequest> itemRequests = generateRequests(PAGE_SIZE_DEFAULT);
-        when(requestService.getExistedForUserId(USER_ID, PAGE_START_FROM, PAGE_SIZE_DEFAULT))
+        when(itemRequestService.getExistedForUserId(USER_ID, PAGE_START_FROM, PAGE_SIZE_DEFAULT))
                 .thenReturn(new PageImpl<>(itemRequests));
         when(itemService.getAllByRequestIdOrderByIdAsc(anyLong())).thenReturn(items);
 
@@ -167,11 +167,11 @@ class ItemRequestControllerTest {
             assertItemRequestAtIndex(response, itemRequests, items, index);
         }
 
-        verify(requestService, times(1))
+        verify(itemRequestService, times(1))
                 .getExistedForUserId(USER_ID, PAGE_START_FROM, PAGE_SIZE_DEFAULT);
         verify(itemService, times(itemRequests.size()))
                 .getAllByRequestIdOrderByIdAsc(anyLong());
-        verifyNoMoreInteractions(requestService);
+        verifyNoMoreInteractions(itemRequestService);
         verifyNoMoreInteractions(itemService);
     }
 }

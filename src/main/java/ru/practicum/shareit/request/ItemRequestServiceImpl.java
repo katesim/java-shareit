@@ -16,20 +16,20 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class RequestServiceImpl implements RequestService {
+public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserRepository userRepository;
-    private final RequestRepository requestRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public List<ItemRequest> getAllByRequesterId(Long requesterId) {
         checkUserExistence(requesterId);
-        return requestRepository.getAllByRequesterIdOrderByCreatedAsc(requesterId);
+        return itemRequestRepository.getAllByRequesterIdOrderByCreatedAsc(requesterId);
     }
 
     @Override
     public ItemRequest getById(Long userId, Long id) {
         checkUserExistence(userId);
-        return requestRepository.findById(id).orElseThrow(() ->
+        return itemRequestRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Запрос с id=" + id + " несуществует"));
     }
 
@@ -37,7 +37,7 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public ItemRequest add(ItemRequest request) {
         checkUserExistence(request.getRequesterId());
-        ItemRequest savedRequest = requestRepository.save(request);
+        ItemRequest savedRequest = itemRequestRepository.save(request);
         log.info("Запрос с id={} создан", savedRequest.getId());
         return savedRequest;
     }
@@ -47,7 +47,7 @@ public class RequestServiceImpl implements RequestService {
         checkUserExistence(userId);
 
         Pageable pageable = PageRequest.of(from / size, size);
-        return requestRepository.getAllByRequesterIdNotOrderByCreatedAsc(userId, pageable);
+        return itemRequestRepository.getAllByRequesterIdNotOrderByCreatedAsc(userId, pageable);
     }
 
     private void checkUserExistence(Long userId) {

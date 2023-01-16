@@ -21,27 +21,27 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 @Validated
 public class ItemRequestController {
-    private final RequestService requestService;
+    private final ItemRequestService itemRequestService;
     private final ItemService itemService;
 
     @PostMapping
     public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                                  @Validated(Create.class) @RequestBody ItemRequestDescriptionDto descriptionDto) {
         ItemRequest request = ItemRequestMapper.toItemRequest(descriptionDto, userId);
-        return ItemRequestMapper.toItemRequestDto(requestService.add(request));
+        return ItemRequestMapper.toItemRequestDto(itemRequestService.add(request));
     }
 
     @GetMapping("{id}")
     public ItemRequestExtendedDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
                                           @PathVariable long id) {
-        ItemRequest request = requestService.getById(userId, id);
+        ItemRequest request = itemRequestService.getById(userId, id);
         List<Item> responses = itemService.getAllByRequestIdOrderByIdAsc(id);
         return ItemRequestMapper.toItemRequestExtendedDto(request, responses);
     }
 
     @GetMapping()
     public List<ItemRequestExtendedDto> getAllByRequester(@RequestHeader("X-Sharer-User-Id") long userId) {
-        List<ItemRequest> requests = requestService.getAllByRequesterId(userId);
+        List<ItemRequest> requests = itemRequestService.getAllByRequesterId(userId);
         List<ItemRequestExtendedDto> requestsDto = new ArrayList<>();
         for (ItemRequest request : requests) {
             List<Item> items = itemService.getAllByRequestIdOrderByIdAsc(request.getId());
@@ -57,7 +57,7 @@ public class ItemRequestController {
             @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
             @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
 
-        Page<ItemRequest> requests = requestService.getExistedForUserId(userId, from, size);
+        Page<ItemRequest> requests = itemRequestService.getExistedForUserId(userId, from, size);
 
         List<ItemRequestExtendedDto> requestsDto = new ArrayList<>();
         for (ItemRequest request : requests) {

@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface RequestService {
+public interface ItemRequestService {
 
     List<ItemRequest> getAllByRequesterId(Long requesterId);
 
