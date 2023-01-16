@@ -15,6 +15,10 @@ import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.practicum.shareit.common.ShareItConstants.PAGE_SIZE_DEFAULT_TEXT;
+import static ru.practicum.shareit.common.ShareItConstants.PAGE_START_FROM_DEFAULT_TEXT;
+import static ru.practicum.shareit.common.ShareItConstants.USER_ID_HEADER;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -25,22 +29,25 @@ public class ItemRequestController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") long userId,
-                                 @Validated(Create.class) @RequestBody ItemRequestDescriptionDto descriptionDto) {
+    public ItemRequestDto create(
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @Validated(Create.class) @RequestBody ItemRequestDescriptionDto descriptionDto) {
         ItemRequest request = ItemRequestMapper.toItemRequest(descriptionDto, userId);
         return ItemRequestMapper.toItemRequestDto(itemRequestService.add(request));
     }
 
     @GetMapping("{id}")
-    public ItemRequestExtendedDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                          @PathVariable long id) {
+    public ItemRequestExtendedDto getById(
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @PathVariable long id) {
         ItemRequest request = itemRequestService.getById(userId, id);
         List<Item> responses = itemService.getAllByRequestIdOrderByIdAsc(id);
         return ItemRequestMapper.toItemRequestExtendedDto(request, responses);
     }
 
     @GetMapping()
-    public List<ItemRequestExtendedDto> getAllByRequester(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemRequestExtendedDto> getAllByRequester(
+            @RequestHeader(USER_ID_HEADER) long userId) {
         List<ItemRequest> requests = itemRequestService.getAllByRequesterId(userId);
         List<ItemRequestExtendedDto> requestsDto = new ArrayList<>();
         for (ItemRequest request : requests) {
@@ -53,9 +60,9 @@ public class ItemRequestController {
 
     @GetMapping("all")
     public List<ItemRequestExtendedDto> getAllExisted(
-            @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
-            @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @RequestParam(defaultValue = PAGE_START_FROM_DEFAULT_TEXT, required = false) @Min(0) int from,
+            @RequestParam(defaultValue = PAGE_SIZE_DEFAULT_TEXT, required = false) @Min(1) int size) {
 
         Page<ItemRequest> requests = itemRequestService.getExistedForUserId(userId, from, size);
 

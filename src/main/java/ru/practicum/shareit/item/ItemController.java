@@ -20,6 +20,10 @@ import javax.validation.constraints.Min;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.common.ShareItConstants.PAGE_SIZE_DEFAULT_TEXT;
+import static ru.practicum.shareit.common.ShareItConstants.PAGE_START_FROM_DEFAULT_TEXT;
+import static ru.practicum.shareit.common.ShareItConstants.USER_ID_HEADER;
+
 
 @RestController
 @RequestMapping("/items")
@@ -31,9 +35,10 @@ public class ItemController {
     private final UserService userService;
 
     @GetMapping
-    public List<ItemExtendedDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId,
-                                        @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
-                                        @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+    public List<ItemExtendedDto> getAll(
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @RequestParam(defaultValue = PAGE_START_FROM_DEFAULT_TEXT, required = false) @Min(0) int from,
+            @RequestParam(defaultValue = PAGE_SIZE_DEFAULT_TEXT, required = false) @Min(1) int size) {
 
         List<ItemExtendedDto> ownersItemsWithBookingsDto = new ArrayList<>();
 
@@ -62,8 +67,9 @@ public class ItemController {
     }
 
     @GetMapping("{id}")
-    public ItemExtendedDto getById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                   @PathVariable long id) {
+    public ItemExtendedDto getById(
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @PathVariable long id) {
         Item item = itemService.getById(id);
         ItemExtendedDto itemDto = ItemMapper.toItemExtendedDto(item);
         if (userId == item.getOwnerId()) {
@@ -88,14 +94,14 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto create(@RequestHeader(USER_ID_HEADER) long userId,
                           @Validated(Create.class) @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto, userId);
         return ItemMapper.toItemDto(itemService.add(item));
     }
 
     @PatchMapping("{id}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto update(@RequestHeader(USER_ID_HEADER) long userId,
                           @PathVariable long id,
                           @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto, userId);
@@ -109,18 +115,20 @@ public class ItemController {
     }
 
     @GetMapping("search")
-    public List<ItemDto> search(@RequestParam String text,
-                                @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
-                                @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+    public List<ItemDto> search(
+            @RequestParam String text,
+            @RequestParam(defaultValue = PAGE_START_FROM_DEFAULT_TEXT, required = false) @Min(0) int from,
+            @RequestParam(defaultValue = PAGE_SIZE_DEFAULT_TEXT, required = false) @Min(1) int size) {
         return itemService.search(text, from, size).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @PostMapping("{itemId}/comment")
-    public ItemExtendedDto.CommentDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @PathVariable long itemId,
-                                                 @Validated(Create.class) @RequestBody CommentRequestDto commentDto) {
+    public ItemExtendedDto.CommentDto addComment(
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @PathVariable long itemId,
+            @Validated(Create.class) @RequestBody CommentRequestDto commentDto) {
         Comment comment = ItemMapper.toComment(itemId, userId, commentDto);
         User author = userService.getById(userId);
         List<Booking> authorBookings = bookingService.getAllByUserIdOrderByStartDesc(

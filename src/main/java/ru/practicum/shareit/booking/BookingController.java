@@ -11,6 +11,9 @@ import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.shareit.common.ShareItConstants.PAGE_SIZE_DEFAULT_TEXT;
+import static ru.practicum.shareit.common.ShareItConstants.PAGE_START_FROM_DEFAULT_TEXT;
+import static ru.practicum.shareit.common.ShareItConstants.USER_ID_HEADER;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -21,17 +24,18 @@ public class BookingController {
     private final BookingMapper bookingMapper;
 
     @GetMapping("{id}")
-    public BookingResponseDto getById(@PathVariable long id,
-                                      @RequestHeader("X-Sharer-User-Id") long userId) {
+    public BookingResponseDto getById(
+            @PathVariable long id,
+            @RequestHeader(USER_ID_HEADER) long userId) {
         return bookingMapper.toBookingResponseDto(bookingService.getById(id, userId));
     }
 
     @GetMapping()
     public List<BookingResponseDto> getAllByUserId(
             @RequestParam(defaultValue = "ALL", required = false) String state,
-            @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
-            @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @RequestParam(defaultValue = PAGE_START_FROM_DEFAULT_TEXT, required = false) @Min(0) int from,
+            @RequestParam(defaultValue = PAGE_SIZE_DEFAULT_TEXT, required = false) @Min(1) int size) {
 
         State stateEnum;
         try {
@@ -53,9 +57,9 @@ public class BookingController {
     @GetMapping("owner")
     public List<BookingResponseDto> getAllByOwnerId(
             @RequestParam(defaultValue = "ALL", required = false) String state,
-            @RequestHeader("X-Sharer-User-Id") long userId,
-            @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
-            @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @RequestParam(defaultValue = PAGE_START_FROM_DEFAULT_TEXT, required = false) @Min(0) int from,
+            @RequestParam(defaultValue = PAGE_SIZE_DEFAULT_TEXT, required = false) @Min(1) int size) {
 
         State stateEnum;
         try {
@@ -75,15 +79,16 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingResponseDto create(@RequestHeader("X-Sharer-User-Id") long userId,
-                                     @Validated(Create.class) @RequestBody BookingRequestDto bookingRequestDto) {
+    public BookingResponseDto create(
+            @RequestHeader(USER_ID_HEADER) long userId,
+            @Validated(Create.class) @RequestBody BookingRequestDto bookingRequestDto) {
         Booking booking = BookingMapper.toBooking(bookingRequestDto);
         booking.setBookerId(userId);
         return bookingMapper.toBookingResponseDto(bookingService.add(booking));
     }
 
     @PatchMapping("{id}")
-    public BookingResponseDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+    public BookingResponseDto update(@RequestHeader(USER_ID_HEADER) long userId,
                                      @PathVariable long id,
                                      @RequestParam() boolean approved) {
         return bookingMapper.toBookingResponseDto(bookingService.updateStatus(id, userId, approved));
