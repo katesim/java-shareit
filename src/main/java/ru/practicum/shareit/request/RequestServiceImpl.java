@@ -25,7 +25,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ItemRequest> getAllByRequesterId(Long requesterId) {
         checkUserExistence(requesterId);
-        return requestRepository.getAllByRequestorIdOrderByCreatedAsc(requesterId);
+        return requestRepository.getAllByRequesterIdOrderByCreatedAsc(requesterId);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class RequestServiceImpl implements RequestService {
         checkUserExistence(userId);
 
         Pageable pageable = PageRequest.of(from / size, size);
-        return requestRepository.getAllByRequestorIdNotOrderByCreatedAsc(userId, pageable);
+        return requestRepository.getAllByRequesterIdNotOrderByCreatedAsc(userId, pageable);
     }
 
     private void checkUserExistence(Long userId) {
