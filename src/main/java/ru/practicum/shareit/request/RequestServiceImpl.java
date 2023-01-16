@@ -7,12 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -45,31 +43,6 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    @Transactional
-    public ItemRequest update(Long userId, ItemRequest request) {
-        ItemRequest prevRequest = getById(userId, request.getId());
-
-        if (!Objects.equals(request.getRequesterId(), prevRequest.getRequesterId())) {
-            throw new ForbiddenException("Изменение запроса доступно только владельцу");
-        }
-        if (request.getDescription() != null) {
-            prevRequest.setDescription(request.getDescription());
-        }
-
-        requestRepository.save(prevRequest);
-        log.info("Запрос с id={} обновлен", prevRequest.getId());
-        return prevRequest;
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long userId, Long id) {
-        ItemRequest request = getById(userId, id);
-        requestRepository.delete(request);
-        log.info("Запрос с id={} удален", id);
-    }
-
-    @Override
     public Page<ItemRequest> getExistedForUserId(Long userId, int from, int size) {
         checkUserExistence(userId);
 
@@ -81,5 +54,4 @@ public class RequestServiceImpl implements RequestService {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id=" + userId + " несуществует"));
     }
-
 }

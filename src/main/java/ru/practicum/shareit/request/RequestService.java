@@ -12,10 +12,6 @@ public interface RequestService {
 
     ItemRequest add(ItemRequest itemRequest);
 
-    ItemRequest update(Long userId, ItemRequest itemRequest);
-
-    void delete(Long userId, Long id);
-
     Page<ItemRequest> getExistedForUserId(Long userId, int from, int size);
 
 }
