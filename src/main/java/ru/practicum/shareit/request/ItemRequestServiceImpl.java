@@ -21,9 +21,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
 
     @Override
-    public List<ItemRequest> getAllByRequesterId(Long requesterId) {
-        checkUserExistence(requesterId);
-        return itemRequestRepository.getAllByRequesterIdOrderByCreatedAsc(requesterId);
+    @Transactional
+    public ItemRequest add(ItemRequest request) {
+        checkUserExistence(request.getRequesterId());
+        ItemRequest savedRequest = itemRequestRepository.save(request);
+        log.info("Запрос с id={} создан", savedRequest.getId());
+        return savedRequest;
     }
 
     @Override
@@ -34,12 +37,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    @Transactional
-    public ItemRequest add(ItemRequest request) {
-        checkUserExistence(request.getRequesterId());
-        ItemRequest savedRequest = itemRequestRepository.save(request);
-        log.info("Запрос с id={} создан", savedRequest.getId());
-        return savedRequest;
+    public List<ItemRequest> getAllByRequesterId(Long requesterId) {
+        checkUserExistence(requesterId);
+        return itemRequestRepository.getAllByRequesterIdOrderByCreatedAsc(requesterId);
     }
 
     @Override

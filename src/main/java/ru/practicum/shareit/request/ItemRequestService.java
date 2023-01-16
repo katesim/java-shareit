@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface ItemRequestService {
 
-    List<ItemRequest> getAllByRequesterId(Long requesterId);
+    ItemRequest add(ItemRequest itemRequest);
 
     ItemRequest getById(Long userId, Long id);
 
-    ItemRequest add(ItemRequest itemRequest);
+    List<ItemRequest> getAllByRequesterId(Long requesterId);
 
     Page<ItemRequest> getExistedForUserId(Long userId, int from, int size);
 
