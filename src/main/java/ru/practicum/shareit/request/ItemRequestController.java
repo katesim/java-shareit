@@ -49,8 +49,6 @@ public class ItemRequestController {
             requestsDto.add(requestDto);
         }
         return requestsDto;
-
-
     }
 
     @GetMapping("all")
@@ -69,6 +67,4 @@ public class ItemRequestController {
         }
         return requestsDto;
     }
-
-
 }
