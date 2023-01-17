@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.markers.Create;
 
+import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class BookingController {
         try {
             stateEnum = State.valueOf(state);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
+            throw new ValidationException("{\"error\": \"Unknown state: " + state + "\" }");
         }
 
         return bookingService.getAllByUserIdOrderByStartDesc(
@@ -65,7 +66,7 @@ public class BookingController {
         try {
             stateEnum = State.valueOf(state);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("{\"error\": \"Unknown state: " + state + "\" }");
+            throw new ValidationException("{\"error\": \"Unknown state: " + state + "\" }");
         }
 
         return bookingService.getAllByOwnerIdOrderByStartDesc(
