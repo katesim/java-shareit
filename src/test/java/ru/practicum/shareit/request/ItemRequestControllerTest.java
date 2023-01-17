@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.common.ShareItConstants.USER_ID_HEADER;
 import static ru.practicum.shareit.item.ItemTestUtils.generateItems;
 import static ru.practicum.shareit.request.ItemRequestTestUtils.assertItemAtIndex;
 import static ru.practicum.shareit.request.ItemRequestTestUtils.assertItemRequestAtIndex;
@@ -45,7 +46,7 @@ import static ru.practicum.shareit.utils.JsonTestUtils.configJsonProvider;
 @WebMvcTest(controllers = ItemRequestController.class)
 @ExtendWith(MockitoExtension.class)
 class ItemRequestControllerTest {
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+
     private static final String REQUESTS_ENDPOINT = "/requests/";
     private static final int PAGE_START_FROM = 0;
     private static final int PAGE_SIZE_DEFAULT = 10;

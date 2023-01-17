@@ -49,18 +49,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.shareit.common.ShareItConstants.USER_ID_HEADER;
 import static ru.practicum.shareit.item.CommentTestUtils.getDefaultComment;
 import static ru.practicum.shareit.item.ItemTestUtils.generateItems;
 import static ru.practicum.shareit.item.ItemTestUtils.getDefaultItem;
+import static ru.practicum.shareit.user.UserTestUtils.USER_ID;
 import static ru.practicum.shareit.user.UserTestUtils.getDefaultUser;
 import static ru.practicum.shareit.utils.JsonTestUtils.configJsonProvider;
 
 @WebMvcTest(controllers = ItemController.class)
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
-    private static final long USER_ID = 1L;
+    private static final String ITEMS_ENDPOINT = "/items/";
     private static final int PAGE_START_FROM = 0;
     private static final int PAGE_SIZE_DEFAULT = 10;
     private static final int PAGE_SIZE_CUSTOM = 2;
@@ -112,7 +113,7 @@ class ItemControllerTest {
         when(itemService.getAllCommentsByItemIdOrderByIdAsc(item.getId()))
                 .thenReturn(new ArrayList<>());
 
-        MvcResult result = mockMvc.perform(get("/items")
+        MvcResult result = mockMvc.perform(get(ITEMS_ENDPOINT)
                         .header(USER_ID_HEADER, USER_ID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(items.size())))
@@ -145,7 +146,7 @@ class ItemControllerTest {
             when(itemService.getAllByOwnerIdOrderByIdAsc(USER_ID, startIndex, PAGE_SIZE_CUSTOM))
                     .thenReturn(new PageImpl<>(slice));
 
-            MvcResult result = mockMvc.perform(get("/items")
+            MvcResult result = mockMvc.perform(get(ITEMS_ENDPOINT)
                             .header(USER_ID_HEADER, USER_ID)
                             .param("from", String.valueOf(startIndex))
                             .param("size", String.valueOf(PAGE_SIZE_CUSTOM)))
@@ -178,7 +179,7 @@ class ItemControllerTest {
         when(itemService.getAllCommentsByItemIdOrderByIdAsc(item.getId()))
                 .thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/items/" + item.getId())
+        mockMvc.perform(get(ITEMS_ENDPOINT + item.getId())
                         .header(USER_ID_HEADER, item.getOwnerId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(item.getId())))
@@ -196,7 +197,7 @@ class ItemControllerTest {
 
         when(itemService.add(ArgumentMatchers.any(Item.class))).thenReturn(item);
 
-        mockMvc.perform(post("/items")
+        mockMvc.perform(post(ITEMS_ENDPOINT)
                         .header(USER_ID_HEADER, USER_ID)
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -212,7 +213,7 @@ class ItemControllerTest {
 
     @Test
     void testDelete() throws Exception {
-        mockMvc.perform(delete("/items/123")
+        mockMvc.perform(delete(ITEMS_ENDPOINT + "123")
                         .header(USER_ID_HEADER, USER_ID))
                 .andExpect(status().isOk());
         verify(itemService, times(1))
@@ -227,7 +228,7 @@ class ItemControllerTest {
 
         when(itemService.update(eq(item))).thenReturn(item);
 
-        mockMvc.perform(patch("/items/" + item.getId())
+        mockMvc.perform(patch(ITEMS_ENDPOINT + item.getId())
                         .header(USER_ID_HEADER, USER_ID)
                         .content(mapper.writeValueAsString(itemDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -253,7 +254,7 @@ class ItemControllerTest {
         when(itemService.search("test", PAGE_START_FROM, PAGE_SIZE_DEFAULT))
                 .thenReturn(new PageImpl<>(List.of(item)));
 
-        MvcResult result = mockMvc.perform(get("/items/search")
+        MvcResult result = mockMvc.perform(get(ITEMS_ENDPOINT + "search")
                         .header(USER_ID_HEADER, USER_ID)
                         .param("text", "test"))
                 .andExpect(status().isOk())
@@ -280,7 +281,7 @@ class ItemControllerTest {
                 .thenReturn(new PageImpl<>(authorBookings));
         when(itemService.addComment(any(Comment.class), eq(authorBookings))).thenReturn(comment);
 
-        MvcResult result = mockMvc.perform(post("/items/" + item.getId() + "/comment")
+        MvcResult result = mockMvc.perform(post(ITEMS_ENDPOINT + item.getId() + "/comment")
                         .header(USER_ID_HEADER, USER_ID)
                         .content(mapper.writeValueAsString(commentRequestDto))
                         .characterEncoding(StandardCharsets.UTF_8)

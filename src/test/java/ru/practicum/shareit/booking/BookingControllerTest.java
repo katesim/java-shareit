@@ -37,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.practicum.shareit.booking.BookingTestUtils.assertBookingAtIndex;
 import static ru.practicum.shareit.booking.BookingTestUtils.generateBookings;
 import static ru.practicum.shareit.booking.BookingTestUtils.getDefaultBooking;
+import static ru.practicum.shareit.common.ShareItConstants.USER_ID_HEADER;
 import static ru.practicum.shareit.item.ItemTestUtils.getDefaultItem;
 import static ru.practicum.shareit.user.UserTestUtils.getDefaultUser;
 import static ru.practicum.shareit.utils.JsonTestUtils.configJsonProvider;
@@ -47,7 +48,7 @@ import static ru.practicum.shareit.utils.JsonTestUtils.configJsonProvider;
 class BookingControllerTest {
 
     private static final String BOOKINGS_ENDPOINT = "/bookings/";
-    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+
     private static final int PAGE_START_FROM = 0;
     private static final int PAGE_SIZE_DEFAULT = 10;
 
