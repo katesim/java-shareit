@@ -8,6 +8,7 @@ import ru.practicum.shareit.markers.Create;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 
 @Data
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDto {
+    @Positive
     private long id;
     @NotBlank(groups = Create.class)
     private String name;
@@ -22,5 +24,6 @@ public class ItemDto {
     private String description;
     @NotNull(groups = Create.class)
     private Boolean available;
+    @Positive
     private Long requestId;
 }
