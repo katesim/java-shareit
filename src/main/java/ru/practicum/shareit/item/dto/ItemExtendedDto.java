@@ -8,6 +8,7 @@ import ru.practicum.shareit.markers.Create;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ItemExtendedDto {
+    @Positive
     private Long id;
     @NotBlank(groups = Create.class)
     private String name;
@@ -26,10 +28,12 @@ public class ItemExtendedDto {
     private Booking lastBooking;
     private Booking nextBooking;
     private List<CommentDto> comments;
+    @Positive
     private Long request;
 
     @Data
     public static class CommentDto {
+        @Positive
         private final Long id;
         private final String text;
         private final String authorName;

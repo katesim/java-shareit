@@ -8,11 +8,13 @@ import ru.practicum.shareit.markers.Update;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 @Data
 @AllArgsConstructor
 @SuperBuilder
 public class UserDto {
+    @Positive
     private long id;
     @NotBlank(groups = Create.class)
     private String name;

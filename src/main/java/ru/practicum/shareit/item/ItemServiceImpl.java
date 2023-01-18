@@ -2,6 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -25,20 +28,31 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    public Item getById(Long id) {
+        return itemRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Предмет с id=" + id + " несуществует"));
+    }
+
+    @Override
     public List<Item> getAll() {
         return itemRepository.findAll();
     }
 
     @Override
-    public List<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId) {
+    public Page<Item> getAllByOwnerIdOrderByIdAsc(Long ownerId, int from, int size) {
         checkUserExistence(ownerId);
-        return itemRepository.getAllByOwnerIdOrderByIdAsc(ownerId);
+        Pageable pageable = PageRequest.of(from / size, size);
+        return itemRepository.getAllByOwnerIdOrderByIdAsc(ownerId, pageable);
     }
 
     @Override
-    public Item getById(Long id) {
-        return itemRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Предмет с id=" + id + " несуществует"));
+    public List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId) {
+        return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
+    }
+
+    @Override
+    public List<Item> getAllByRequestIdOrderByIdAsc(Long requestId) {
+        return itemRepository.getAllByRequestIdOrderByIdAsc(requestId);
     }
 
     @Override
@@ -81,35 +95,29 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> search(String text) {
-        List<Item> collectedItems = new ArrayList<>();
-
+    public Page<Item> search(String text, int from, int size) {
         if (text.isBlank() || text.isEmpty()) {
-            return collectedItems;
+            return Page.empty();
         }
 
         text = text.toLowerCase();
 
-        collectedItems = itemRepository.search(text);
-        return collectedItems;
+        Pageable pageable = PageRequest.of(from / size, size);
+        return itemRepository.search(text, pageable);
     }
 
     @Override
     @Transactional
     public Comment addComment(Comment comment, List<Booking> authorBookings) {
-        List<Long> itemsIds = authorBookings.stream().map(Booking::getItemId).collect(Collectors.toList());
+        Set<Long> itemsIds = authorBookings.stream()
+                .map(Booking::getItemId)
+                .collect(Collectors.toSet());
         if (!itemsIds.contains(comment.getItemId())) {
             throw new ValidationException("Вы не бронировали данный предмет");
         }
 
         return commentRepository.save(comment);
     }
-
-    @Override
-    public List<Comment> getAllCommentsByItemIdOrderByIdAsc(Long itemId) {
-        return commentRepository.getAllByItemIdOrderByIdAsc(itemId);
-    }
-
 
     private void checkUserExistence(Long userId) {
         userRepository.findById(userId).orElseThrow(() ->

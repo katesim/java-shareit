@@ -9,6 +9,9 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
