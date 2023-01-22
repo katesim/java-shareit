@@ -23,6 +23,10 @@ public class BaseClient {
         return get(path, null, null);
     }
 
+    protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
+        return get(path, null, parameters);
+    }
+
     protected ResponseEntity<Object> get(String path, long userId) {
         return get(path, userId, null);
     }
