@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: share-it-server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
+
+  db:
+    image: postgres:13.7-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+
+volumes:
+  db-data:
