@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.markers.Create;
 
-import javax.validation.ValidationException;
 import javax.validation.constraints.Min;
 
 import static ru.practicum.shareit.common.ShareItConstants.PAGE_SIZE_DEFAULT_TEXT;
