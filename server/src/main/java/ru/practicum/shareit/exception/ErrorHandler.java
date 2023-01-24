@@ -21,8 +21,9 @@ public class ErrorHandler {
 
     @ExceptionHandler({ConstraintViolationException.class, MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleAnnotationValidationException(final RuntimeException runtimeException) {
-        return runtimeException.getMessage();
+    public String handleAnnotationValidationException(final RuntimeException exception) {
+        log.error(exception.getMessage());
+        return exception.getMessage();
     }
 
     @ExceptionHandler(ForbiddenException.class)
